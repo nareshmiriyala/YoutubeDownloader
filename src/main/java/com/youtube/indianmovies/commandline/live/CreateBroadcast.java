@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.google.api.services.samples.youtube.cmdline.live;
+package com.youtube.indianmovies.commandline.live;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
