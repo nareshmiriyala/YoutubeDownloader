@@ -16,7 +16,7 @@ package com.google.api.services.samples.youtube.cmdline.live;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.services.samples.youtube.cmdline.Auth;
+import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.LiveStream;
 import com.google.api.services.youtube.model.LiveStreamListResponse;

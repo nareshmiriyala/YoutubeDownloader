@@ -12,13 +12,13 @@
  * the License.
  */
 
-package com.google.api.services.samples.youtube.cmdline.data;
+package com.youtube.indianmovies.data;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.util.Joiner;
-import com.google.api.services.samples.youtube.cmdline.Auth;
+import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.GeoPoint;
 import com.google.api.services.youtube.model.SearchListResponse;
