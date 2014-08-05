@@ -4,17 +4,12 @@ package com.youtube.indianmovies.data;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Thumbnail;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,7 +67,7 @@ public class Search {
                 @Override
                 public void initialize(HttpRequest request) throws IOException {
                 }
-            }).setApplicationName("youtube-cmdline-search-sample").build();
+            }).setApplicationName("youtube-indianmovies").build();
 
             // Prompt the user to enter a query term.
             String queryTerm = getInputQuery();
@@ -107,8 +102,6 @@ public class Search {
                     + e.getDetails().getMessage());
         } catch (IOException e) {
             System.err.println("There was an IO error: " + e.getCause() + " : " + e.getMessage());
-        } catch (Throwable t) {
-            t.printStackTrace();
         }
     }
 
