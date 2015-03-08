@@ -1,10 +1,5 @@
 package com.youtube.downloader;
 
-import java.io.File;
-import java.net.URL;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VideoInfo;
 import com.github.axet.vget.info.VideoInfo.VideoQuality;
@@ -12,6 +7,11 @@ import com.github.axet.vget.info.VideoInfoUser;
 import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.DownloadInfo.Part;
 import com.github.axet.wget.info.DownloadInfo.Part.States;
+
+import java.io.File;
+import java.net.URL;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AppManagedDownload {
 
