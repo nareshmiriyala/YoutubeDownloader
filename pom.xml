@@ -68,7 +68,7 @@
         <dependency>
            <groupId>com.github.axet</groupId>
            <artifactId>vget</artifactId>
-           <version>1.1.23</version>
+           <version>1.1.6</version>
        </dependency>
     </dependencies>
 
