@@ -92,20 +92,4 @@ public class AppManagedDownload {
             throw new RuntimeException(e);
         }
     }
-
-    public static void main(String[] args) {
-        AppManagedDownload e = new AppManagedDownload();
-        Search youtubeSearch = new Search();
-        String path = "C:\\Users\\nareshm\\Videos\\Naresh Downloads";
-        List<SearchResult> searchResults = youtubeSearch.find();
-        searchResults.forEach(searchResult -> {
-            String url = createURL(searchResult.getId().getVideoId());
-            System.out.println("Downloading URL:"+url);
-            e.run(url, new File(path));
-        });
-    }
-
-    private static String createURL(String videoId) {
-        return "http://www.youtube.com/watch?v=".concat(videoId);
-    }
 }
