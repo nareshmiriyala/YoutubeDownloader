@@ -6,6 +6,8 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.PlaylistItem;
+import com.google.api.services.youtube.model.PlaylistItemListResponse;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
@@ -15,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -69,20 +72,46 @@ public class Search {
                 public void initialize(HttpRequest request) throws IOException {
                 }
             }).setApplicationName("youtube-cmdline-search-sample").build();
+            
+            // Define a list to store items in the list of uploaded videos.
+                List<PlaylistItem> playlistItemList = new ArrayList<PlaylistItem>();
 
+                // Retrieve the playlist of the channel's uploaded videos.
+                YouTube.PlaylistItems.List playlistItemRequest =
+                        youtube.playlistItems().list("id,contentDetails,snippet");
+                playlistItemRequest.setPlaylistId("PLE7E8B7F4856C9B19");
+                
+                 // playlistItemRequest.setFields(
+                   //     "items(contentDetails/videoId,snippet/title,snippet/publishedAt),nextPageToken,pageInfo");
+                    String nextToken = "";
+
+                // Call the API one or more times to retrieve all items in the
+                // list. As long as the API response returns a nextPageToken,
+                // there are still more items to retrieve.
+                do {
+                    playlistItemRequest.setPageToken(nextToken);
+                    PlaylistItemListResponse playlistItemResult = playlistItemRequest.execute();
+
+                    playlistItemList.addAll(playlistItemResult.getItems());
+
+                    nextToken = playlistItemResult.getNextPageToken();
+                } while (nextToken != null);
+
+                // Prints information about the results.
+                prettyPrint(playlistItemList.size(), playlistItemList.iterator());
             // Prompt the user to enter a query term.
             String queryTerm = getInputQuery();
 
             // Define the API request for retrieving search results.
             YouTube.Search.List search = youtube.search().list("id,snippet");
-
+           
             // Set your developer key from the {{ Google Cloud Console }} for
             // non-authenticated requests. See:
             // {{ https://cloud.google.com/console }}
             String apiKey = properties.getProperty("youtube.apikey");
             search.setKey(apiKey);
             search.setQ(queryTerm);
-
+           
             // Restrict the search results to only include videos. See:
             // https://developers.google.com/youtube/v3/docs/search/list#type
             search.setType("video");
@@ -160,6 +189,26 @@ public class Search {
                 System.out.println(" Thumbnail: " + thumbnail.getUrl());
                 System.out.println("\n-------------------------------------------------------------\n");
             }
+        }
+    }
+     /*
+     * Print information about all of the items in the playlist.
+     *
+     * @param size size of list
+     *
+     * @param iterator of Playlist Items from uploaded Playlist
+     */
+    private static void prettyPrint(int size, Iterator<PlaylistItem> playlistEntries) {
+        System.out.println("=============================================================");
+        System.out.println("\t\tTotal Videos Uploaded: " + size);
+        System.out.println("=============================================================\n");
+
+        while (playlistEntries.hasNext()) {
+            PlaylistItem playlistItem = playlistEntries.next();
+            System.out.println(" video name  = " + playlistItem.getSnippet().getTitle());
+            System.out.println(" video id    = " + playlistItem.getContentDetails().getVideoId());
+            System.out.println(" upload date = " + playlistItem.getSnippet().getPublishedAt());
+            System.out.println("\n-------------------------------------------------------------\n");
         }
     }
 }

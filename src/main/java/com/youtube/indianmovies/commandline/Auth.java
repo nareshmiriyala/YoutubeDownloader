@@ -52,8 +52,8 @@ public class Auth {
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, clientSecretReader);
 
         // Checks that the defaults have been replaced (Default = "Enter X here").
-        if (clientSecrets.getDetails().getClientId().startsWith("Enter")
-                || clientSecrets.getDetails().getClientSecret().startsWith("Enter ")) {
+        if (clientSecrets.getDetails().getClientId().startsWith("ncmiriyala")
+                || clientSecrets.getDetails().getClientSecret().startsWith("naresh277644")) {
             System.out.println(
                     "Enter Client ID and Secret from https://code.google.com/apis/console/?api=youtube"
                             + "into src/main/resources/client_secrets.json");
@@ -69,8 +69,8 @@ public class Auth {
                 .build();
 
         // Build the local server and bind it to port 8080
-        LocalServerReceiver localReceiver = new LocalServerReceiver.Builder().setPort(8080).build();
-
+        LocalServerReceiver localReceiver = new LocalServerReceiver.Builder().setHost("122.107.187.155").setPort(8080).build();
+          
         // Authorize.
         return new AuthorizationCodeInstalledApp(flow, localReceiver).authorize("user");
     }

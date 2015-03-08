@@ -63,25 +63,25 @@ public class MyUploads {
             youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, credential).setApplicationName(
                     "youtube-cmdline-myuploads-sample").build();
 
-            // Call the API's channels.list method to retrieve the
-            // resource that represents the authenticated user's channel.
-            // In the API response, only include channel information needed for
-            // this use case. The channel's contentDetails part contains
-            // playlist IDs relevant to the channel, including the ID for the
-            // list that contains videos uploaded to the channel.
-            YouTube.Channels.List channelRequest = youtube.channels().list("contentDetails");
-            channelRequest.setMine(true);
-            channelRequest.setFields("items/contentDetails,nextPageToken,pageInfo");
-            ChannelListResponse channelResult = channelRequest.execute();
-
-            List<Channel> channelsList = channelResult.getItems();
-
-            if (channelsList != null) {
+//            // Call the API's channels.list method to retrieve the
+//            // resource that represents the authenticated user's channel.
+//            // In the API response, only include channel information needed for
+//            // this use case. The channel's contentDetails part contains
+//            // playlist IDs relevant to the channel, including the ID for the
+//            // list that contains videos uploaded to the channel.
+//            YouTube.Channels.List channelRequest = youtube.channels().list("contentDetails");
+//            channelRequest.setMine(true);
+//            channelRequest.setFields("items/contentDetails,nextPageToken,pageInfo");
+//            ChannelListResponse channelResult = channelRequest.execute();
+//
+//            List<Channel> channelsList = channelResult.getItems();
+//
+//            if (channelsList != null) {
                 // The user's default channel is the first item in the list.
                 // Extract the playlist ID for the channel's videos from the
                 // API response.
-                String uploadPlaylistId =
-                        channelsList.get(0).getContentDetails().getRelatedPlaylists().getUploads();
+                String uploadPlaylistId ="PLE7E8B7F4856C9B19";
+//                        channelsList.get(0).getContentDetails().getRelatedPlaylists().getUploads();
 
                 // Define a list to store items in the list of uploaded videos.
                 List<PlaylistItem> playlistItemList = new ArrayList<PlaylistItem>();
@@ -113,7 +113,7 @@ public class MyUploads {
 
                 // Prints information about the results.
                 prettyPrint(playlistItemList.size(), playlistItemList.iterator());
-            }
+//            }
 
         } catch (GoogleJsonResponseException e) {
             e.printStackTrace();
