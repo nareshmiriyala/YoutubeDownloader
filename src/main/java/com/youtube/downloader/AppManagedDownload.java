@@ -1,9 +1,10 @@
 package com.youtube.downloader;
 
 import com.github.axet.vget.VGet;
+import com.github.axet.vget.info.VGetParser;
 import com.github.axet.vget.info.VideoInfo;
-import com.github.axet.vget.info.VideoInfo.VideoQuality;
-import com.github.axet.vget.info.VideoInfoUser;
+import com.github.axet.vget.vhs.VimeoInfo;
+import com.github.axet.vget.vhs.YoutubeInfo;
 import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.DownloadInfo.Part;
 import com.github.axet.wget.info.DownloadInfo.Part.States;
@@ -35,7 +36,15 @@ public class AppManagedDownload {
                         case EXTRACTING:
                         case EXTRACTING_DONE:
                         case DONE:
-                            System.out.println(i1.getState() + " " + i1.getVideoQuality());
+                            if (i1 instanceof YoutubeInfo) {
+                                YoutubeInfo i = (YoutubeInfo) i1;
+                                System.out.println(i1.getState() + " " + i.getVideoQuality());
+                            } else if (i1 instanceof VimeoInfo) {
+                                VimeoInfo i = (VimeoInfo) i1;
+                                System.out.println(i1.getState() + " " + i.getVideoQuality());
+                            } else {
+                                System.out.println("downloading unknown quality");
+                            }
                             break;
                         case RETRYING:
                             System.out.println(i1.getState() + " " + i1.getDelay());
@@ -68,22 +77,36 @@ public class AppManagedDownload {
                 }
             };
 
-            info = new VideoInfo(new URL(url));
+            URL web = new URL(url);
 
             // [OPTIONAL] limit maximum quality, or do not call this function if
             // you wish maximum quality available.
             //
             // if youtube does not have video with requested quality, program
-            // will raise an exception.
-            VideoInfoUser user = new VideoInfoUser();
-            user.setUserQuality(VideoQuality.p360);
+            // will raise en exception.
+            VGetParser user = null;
+
+            // create proper html parser depends on url
+            user = VGet.parser(web);
+
+            // download maximum video quality from youtube
+            // user = new YouTubeQParser(YoutubeQuality.p480);
+
+            // download mp4 format only, fail if non exist
+            // user = new YouTubeMPGParser();
+
+            // create proper videoinfo to keep specific video information
+            info = user.info(web);
 
             VGet v = new VGet(info, path);
 
             // [OPTIONAL] call v.extract() only if you d like to get video title
+            // or download url link
             // before start download. or just skip it.
             v.extract(user, stop, notify);
-            System.out.println(info.getTitle());
+
+            System.out.println("Title: " + info.getTitle());
+            System.out.println("Download URL: " + info.getInfo().getSource());
 
             v.download(user, stop, notify);
         } catch (RuntimeException e) {
@@ -100,7 +123,7 @@ public class AppManagedDownload {
         List<SearchResult> searchResults = youtubeSearch.find();
         searchResults.forEach(searchResult -> {
             String url = createURL(searchResult.getId().getVideoId());
-            System.out.println("Downloading URL:"+url);
+            System.out.println("Downloading URL:" + url);
             e.run(url, new File(path));
         });
     }
