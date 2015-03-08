@@ -98,8 +98,9 @@ public class AppManagedDownload {
         Search youtubeSearch = new Search();
         String path = "C:\\Users\\nareshm\\Videos\\Naresh Downloads";
         List<SearchResult> searchResults = youtubeSearch.find();
-        searchResults.parallelStream().forEach(searchResult -> {
+        searchResults.forEach(searchResult -> {
             String url = createURL(searchResult.getId().getVideoId());
+            System.out.println("Downloading URL:"+url);
             e.run(url, new File(path));
         });
     }
