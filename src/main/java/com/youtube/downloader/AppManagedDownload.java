@@ -7,6 +7,8 @@ import com.github.axet.vget.info.VideoInfoUser;
 import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.DownloadInfo.Part;
 import com.github.axet.wget.info.DownloadInfo.Part.States;
+import com.google.api.services.youtube.model.SearchResult;
+import com.youtube.indianmovies.data.Search;
 
 import java.io.File;
 import java.net.URL;
@@ -93,10 +95,16 @@ public class AppManagedDownload {
 
     public static void main(String[] args) {
         AppManagedDownload e = new AppManagedDownload();
-        // ex: http://www.youtube.com/watch?v=Nj6PFaDmp6c
-        String url = "http://www.youtube.com/watch?v=yYN8u90MKCg&list=PLE7E8B7F4856C9B19&index=2";
-        // ex: /Users/axet/Downloads/
-        String path = "C:\\Users\\nareshm\\Videos\\4K Video Downloader\\JavaProgramming";
-        e.run(url, new File(path));
+        Search youtubeSearch = new Search();
+        String path = "C:\\Users\\nareshm\\Videos\\Naresh Downloads";
+        List<SearchResult> searchResults = youtubeSearch.find();
+        searchResults.parallelStream().forEach(searchResult -> {
+            String url = createURL(searchResult.getId().getVideoId());
+            e.run(url, new File(path));
+        });
+    }
+
+    private static String createURL(String videoId) {
+        return "http://www.youtube.com/watch?v=".concat(videoId);
     }
 }
