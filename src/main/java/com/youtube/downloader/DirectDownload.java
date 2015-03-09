@@ -36,6 +36,7 @@ public class DirectDownload {
             throw new RuntimeException(e);
         }
     }
+
     private static String createURL(String videoId) {
         return "http://www.youtube.com/watch?v=".concat(videoId);
     }

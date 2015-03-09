@@ -23,48 +23,45 @@ public class AppManagedDownload {
     public void run(String url, File path) {
         try {
             AtomicBoolean stop = new AtomicBoolean(false);
-            Runnable notify = new Runnable() {
-                @Override
-                public void run() {
-                    VideoInfo i1 = info;
-                    DownloadInfo i2 = i1.getInfo();
+            Runnable notify = () -> {
+                VideoInfo i1 = info;
+                DownloadInfo i2 = i1.getInfo();
 
-                    // notify app or save download state
-                    // you can extract information from DownloadInfo info;
-                    switch (i1.getState()) {
-                        case EXTRACTING:
-                        case EXTRACTING_DONE:
-                        case DONE:
-                            System.out.println(i1.getState() + " " + i1.getVideoQuality());
-                            break;
-                        case RETRYING:
-                            System.out.println(i1.getState() + " " + i1.getDelay());
-                            break;
-                        case DOWNLOADING:
-                            long now = System.currentTimeMillis();
-                            if (now - 1000 > last) {
-                                last = now;
+                // notify app or save download state
+                // you can extract information from DownloadInfo info;
+                switch (i1.getState()) {
+                    case EXTRACTING:
+                    case EXTRACTING_DONE:
+                    case DONE:
+                        System.out.println(i1.getState() + " " + i1.getVideoQuality());
+                        break;
+                    case RETRYING:
+                        System.out.println(i1.getState() + " " + i1.getDelay());
+                        break;
+                    case DOWNLOADING:
+                        long now = System.currentTimeMillis();
+                        if (now - 1000 > last) {
+                            last = now;
 
-                                String parts = "";
+                            String parts = "";
 
-                                List<Part> pp = i2.getParts();
-                                if (pp != null) {
-                                    // multipart download
-                                    for (Part p : pp) {
-                                        if (p.getState().equals(States.DOWNLOADING)) {
-                                            parts += String.format("Part#%d(%.2f) ", p.getNumber(), p.getCount()
-                                                    / (float) p.getLength());
-                                        }
+                            List<Part> pp = i2.getParts();
+                            if (pp != null) {
+                                // multipart download
+                                for (Part p : pp) {
+                                    if (p.getState().equals(States.DOWNLOADING)) {
+                                        parts += String.format("Part#%d(%.2f) ", p.getNumber(), p.getCount()
+                                                / (float) p.getLength());
                                     }
                                 }
-
-                                System.out.println(String.format("%s %.2f %s", i1.getState(),
-                                        i2.getCount() / (float) i2.getLength(), parts));
                             }
-                            break;
-                        default:
-                            break;
-                    }
+
+                            System.out.println(String.format("%s %.2f %s",Thread.currentThread().getName()+" "+ i1.getState(),
+                                    i2.getCount() / (float) i2.getLength(), parts));
+                        }
+                        break;
+                    default:
+                        break;
                 }
             };
 
@@ -93,19 +90,19 @@ public class AppManagedDownload {
         }
     }
 
-    public static void main(String[] args) {
-        AppManagedDownload e = new AppManagedDownload();
-        Search youtubeSearch = new Search();
-        String path = "C:\\Users\\nareshm\\Videos\\Naresh Downloads";
-        List<SearchResult> searchResults = youtubeSearch.find();
-        searchResults.forEach(searchResult -> {
-            String url = createURL(searchResult.getId().getVideoId());
-            System.out.println("Downloading URL:"+url);
-            e.run(url, new File(path));
-        });
-    }
-
-    private static String createURL(String videoId) {
-        return "http://www.youtube.com/watch?v=".concat(videoId);
-    }
+//    public static void main(String[] args) {
+//        AppManagedDownload e = new AppManagedDownload();
+//        Search youtubeSearch = new Search();
+//        String path = "C:\\Users\\nareshm\\Videos\\Naresh Downloads";
+//        List<SearchResult> searchResults = youtubeSearch.find();
+//        searchResults.forEach(searchResult -> {
+//            String url = createURL(searchResult.getId().getVideoId());
+//            System.out.println("Downloading URL:" + url);
+//            e.run(url, new File(path));
+//        });
+//    }
+//
+//    private static String createURL(String videoId) {
+//        return "http://www.youtube.com/watch?v=".concat(videoId);
+//    }
 }

@@ -17,10 +17,15 @@ public class ConcurrentDownloader {
         List<SearchResult> searchResults = youtubeSearch.find();
         searchResults.forEach(searchResult -> {
             String url = createURL(searchResult.getId().getVideoId());
-            DownloadJob downloadJob = new DownloadJob("Download Job:"+url);
+            DownloadJob downloadJob = new DownloadJob("Download Job:" + url);
             downloadJob.setFileDownloadPath(path);
             downloadJob.setUrlToDownload(url);
             workerPool.deployJob(downloadJob);
+            try {
+                workerPool.shutdown();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
 
     }
