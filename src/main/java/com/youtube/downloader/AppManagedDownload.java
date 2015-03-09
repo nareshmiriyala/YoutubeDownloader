@@ -26,7 +26,7 @@ public class AppManagedDownload {
             Runnable notify = () -> {
                 VideoInfo i1 = info;
                 DownloadInfo i2 = i1.getInfo();
-                String s = Thread.currentThread().getName() + " "+title+" ";
+                String s = Thread.currentThread().getName() + ":: "+title+":: ";
 
                 // notify app or save download state
                 // you can extract information from DownloadInfo info;
