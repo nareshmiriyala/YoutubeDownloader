@@ -10,6 +10,15 @@ import java.io.File;
 public class DownloadJob extends WorkerThread {
     String urlToDownload;
     String fileDownloadPath;
+    String title;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public String getFileDownloadPath() {
         return fileDownloadPath;
@@ -34,8 +43,8 @@ public class DownloadJob extends WorkerThread {
     @Override
     public void processCommand() {
         AppManagedDownload appManagedDownload=new AppManagedDownload();
-        System.out.println("Downloading ULR:"+urlToDownload+" to path:"+fileDownloadPath);
-        appManagedDownload.run(this.urlToDownload,new File(fileDownloadPath));
+        System.out.println("Downloading ULR:"+this.urlToDownload+" to path:"+this.fileDownloadPath);
+        appManagedDownload.run(this.urlToDownload,new File(fileDownloadPath),this.title);
 
     }
 

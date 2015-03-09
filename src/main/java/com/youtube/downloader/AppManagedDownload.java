@@ -20,12 +20,13 @@ public class AppManagedDownload {
     VideoInfo info;
     long last;
 
-    public void run(String url, File path) {
+    public void run(String url, File path,String title) {
         try {
             AtomicBoolean stop = new AtomicBoolean(false);
             Runnable notify = () -> {
                 VideoInfo i1 = info;
                 DownloadInfo i2 = i1.getInfo();
+                String s = Thread.currentThread().getName() + " "+title+" ";
 
                 // notify app or save download state
                 // you can extract information from DownloadInfo info;
@@ -33,10 +34,10 @@ public class AppManagedDownload {
                     case EXTRACTING:
                     case EXTRACTING_DONE:
                     case DONE:
-                        System.out.println(i1.getState() + " " + i1.getVideoQuality());
+                        System.out.println(s+i1.getState() + " " + i1.getVideoQuality());
                         break;
                     case RETRYING:
-                        System.out.println(i1.getState() + " " + i1.getDelay());
+                        System.out.println(s+i1.getState() + " " + i1.getDelay());
                         break;
                     case DOWNLOADING:
                         long now = System.currentTimeMillis();
@@ -56,7 +57,7 @@ public class AppManagedDownload {
                                 }
                             }
 
-                            System.out.println(String.format("%s %.2f %s",Thread.currentThread().getName()+" "+ i1.getState(),
+                            System.out.println(String.format("%s %.2f %s", s + i1.getState(),
                                     i2.getCount() / (float) i2.getLength(), parts));
                         }
                         break;
