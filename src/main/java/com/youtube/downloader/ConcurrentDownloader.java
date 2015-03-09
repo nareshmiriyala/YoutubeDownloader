@@ -6,6 +6,7 @@ import com.youtube.workerpool.WorkerPool;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,10 +15,12 @@ import java.util.regex.Pattern;
  */
 public class ConcurrentDownloader {
     public static void main(String[] args) {
-        WorkerPool workerPool = WorkerPool.getInstance();
         Search youtubeSearch = new Search();
+        Search.setNumberOfVideosReturned(10);
         String path = "C:\\Users\\nareshm\\Videos\\Naresh Downloads";
         List<SearchResult> searchResults = youtubeSearch.find();
+        WorkerPool workerPool = WorkerPool.getInstance();
+        AtomicInteger count = new AtomicInteger(0);
         searchResults.forEach(searchResult -> {
             String url = createURL(searchResult.getId().getVideoId());
             String name = searchResult.getSnippet().getTitle();
@@ -27,26 +30,30 @@ public class ConcurrentDownloader {
                 downloadJob.setFileDownloadPath(path);
                 downloadJob.setUrlToDownload(url);
                 downloadJob.setTitle(name);
-                workerPool.deployJob(downloadJob);
+                count.incrementAndGet();
+                WorkerPool.deployJob(downloadJob);
             }
         });
+        if (0 == count.get()) {
+            System.out.println("=============No Videos Downloaded==========");
+        }
         try {
-            workerPool.shutdown();
+            WorkerPool.shutdown();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
 
     }
 
     private static boolean isFileExists(String name, String path) {
         File folderFiles = new File(path);
         File[] listFiles = folderFiles.listFiles();
-        Pattern pattern = Pattern.compile(name.substring(0,(name.length()/2)),Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile(name.substring(0, (name.length() / 2)), Pattern.CASE_INSENSITIVE);
         for (File file : listFiles) {
             if (file.isFile()) {
                 Matcher matcher = pattern.matcher(file.getName());
-                if(matcher.lookingAt()) {
-                    System.out.println("=========MATCHED==========");
+                if (matcher.lookingAt()) {
                     return true;
                 }
             }
