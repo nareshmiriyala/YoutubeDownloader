@@ -123,8 +123,9 @@ public class Search {
     /**
      * Initialize a YouTube object to search for videos on YouTube. Then
      * display the name and thumbnail image of each video in the result set.
+     * @param searchQuery
      */
-    public List<SearchResult> find() {
+    public List<SearchResult> find(String searchQuery) {
         // Read the developer key from the properties file.
         Properties properties = new Properties();
         List<SearchResult> searchResultList = null;
@@ -176,7 +177,8 @@ public class Search {
 //            // Prints information about the results.
 //            prettyPrint(playlistItemList.size(), playlistItemList.iterator());
             // Prompt the user to enter a query term.
-            String queryTerm = getInputQuery();
+            //  String queryTerm = getInputQuery();
+            String queryTerm = searchQuery;
 
             // Define the API request for retrieving search results.
             YouTube.Search.List search = youtube.search().list("id,snippet");
