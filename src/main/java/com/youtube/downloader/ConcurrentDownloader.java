@@ -29,9 +29,9 @@ public class ConcurrentDownloader {
         }
         while (true) {
             Search.setNumberOfVideosReturned(videosToDownload.get());
-            String path = "C:\\Users\\nareshm\\Videos\\Naresh Downloads";
+            String path = "C:\\Users\\nareshm\\Videos\\Naresh Downloads\\Java";
             List<SearchResult> searchResults = youtubeSearch.find(searchQuery);
-            WorkerPool workerPool = WorkerPool.getInstance();
+            WorkerPool.getInstance();
             searchResults.forEach(searchResult -> {
                 String url = createURL(searchResult.getId().getVideoId());
                 String name = searchResult.getSnippet().getTitle();
@@ -65,10 +65,14 @@ public class ConcurrentDownloader {
     }
 
     private static boolean isFileExists(String name, String path) {
-        File folderFiles = new File(path);
-        File[] listFiles = folderFiles.listFiles();
-        String halfName = name.substring(0, (name.length() / 2)).replaceAll("\\(", "").replaceAll("\\)", "");
-        Pattern pattern = Pattern.compile(halfName, Pattern.CASE_INSENSITIVE);
+        String fileName = path.concat("\\").concat(name.trim().replaceAll("[<>:\"|/\\|?*]", "") + ".webm");
+        File folderFiles = new File(fileName);
+        if (folderFiles.exists()) {
+            return true;
+        }
+        File[] listFiles = new File(path).listFiles();
+        name.substring(0, (name.length() / 2)).replaceAll("\\(", "").replaceAll("\\)", "");
+        Pattern pattern = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
         for (File file : listFiles) {
             if (file.isFile()) {
                 Matcher matcher = pattern.matcher(file.getName());
@@ -86,7 +90,7 @@ public class ConcurrentDownloader {
 
     private static String getInputQuery() throws IOException {
 
-        String inputQuery = "";
+        String inputQuery;
 
         System.out.print("Please enter a search term: ");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
