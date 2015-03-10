@@ -7,13 +7,12 @@ import com.github.axet.vget.info.VideoInfoUser;
 import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.DownloadInfo.Part;
 import com.github.axet.wget.info.DownloadInfo.Part.States;
-import com.google.api.services.youtube.model.SearchResult;
-import com.youtube.indianmovies.data.Search;
 
 import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AppManagedDownload {
 
@@ -23,6 +22,7 @@ public class AppManagedDownload {
     public void run(String url, File path,String title) {
         try {
             AtomicBoolean stop = new AtomicBoolean(false);
+            AtomicInteger retryCount = new AtomicInteger(0);
             Runnable notify = () -> {
                 VideoInfo i1 = info;
                 DownloadInfo i2 = i1.getInfo();
@@ -38,6 +38,10 @@ public class AppManagedDownload {
                         break;
                     case RETRYING:
                         System.out.println(s+i1.getState() + " " + i1.getDelay());
+                        retryCount.incrementAndGet();
+                        if (retryCount.get() > 10) {
+                            throw new RuntimeException("Cant Download the file");
+                        }
                         break;
                     case DOWNLOADING:
                         long now = System.currentTimeMillis();
