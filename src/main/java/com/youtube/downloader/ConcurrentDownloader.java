@@ -65,22 +65,21 @@ public class ConcurrentDownloader {
     }
 
     private static boolean isFileExists(String name, String path) {
-        String fileName = path.concat("\\").concat(name.trim().replaceAll("[<>:\"|/\\|?*]", "") + ".webm");
+        String replacedName = name.trim().replaceAll("[<>:\"/\\\\|?*\\x00-\\x1F]", "");
+        String fileName = path.concat("\\").concat(replacedName + ".webm");
         File folderFiles = new File(fileName);
         if (folderFiles.exists()) {
             return true;
         }
         File[] listFiles = new File(path).listFiles();
-        name.substring(0, (name.length() / 2)).replaceAll("\\(", "").replaceAll("\\)", "");
         Pattern pattern = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
-        for (File file : listFiles) {
+        for (File file : listFiles)
             if (file.isFile()) {
                 Matcher matcher = pattern.matcher(file.getName());
                 if (matcher.lookingAt()) {
                     return true;
                 }
             }
-        }
         return false;
     }
 
