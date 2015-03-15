@@ -15,7 +15,7 @@ public class MyMonitorThread implements Runnable {
 
     public MyMonitorThread(ThreadPoolExecutor executor) {
         this.executor = executor;
-        this.seconds = 3;
+        this.seconds = 10;
     }
 
     public void shutdown() {
