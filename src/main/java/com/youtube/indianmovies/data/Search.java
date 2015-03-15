@@ -78,7 +78,7 @@ public class Search {
         if (!iteratorSearchResults.hasNext()) {
             System.out.println(" There aren't any results for your query.");
         }
-
+        int number = 1;
         while (iteratorSearchResults.hasNext()) {
 
             SearchResult singleVideo = iteratorSearchResults.next();
@@ -89,13 +89,15 @@ public class Search {
             if (rId.getKind().equals("youtube#video")) {
                 Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
 
-                System.out.println(" Video Id" + rId.getVideoId());
-                System.out.println(" Title: " + singleVideo.getSnippet().getTitle());
-                System.out.println(" Thumbnail: " + thumbnail.getUrl());
-                System.out.println("\n-------------------------------------------------------------\n");
+                System.out.print("** Video Id:" + rId.getVideoId() + " ");
+                System.out.print("** Title: " + singleVideo.getSnippet().getTitle());
+                System.out.println();
             }
         }
+        System.out.println("\n-------------------------------------------------------------\n");
+
     }
+
 
     /*
     * Print information about all of the items in the playlist.
@@ -121,6 +123,7 @@ public class Search {
     /**
      * Initialize a YouTube object to search for videos on YouTube. Then
      * display the name and thumbnail image of each video in the result set.
+     *
      * @param searchQuery
      */
     public List<SearchResult> find(String searchQuery) {

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * Created by nareshm on 8/03/2015.
  */
 public class ConcurrentDownloader {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Search youtubeSearch = new Search();
         AtomicInteger count = new AtomicInteger(0);
         AtomicInteger videosToDownload = new AtomicInteger(10);
@@ -40,8 +40,9 @@ public class ConcurrentDownloader {
             Search.setNumberOfVideosReturned(videosToDownload.get());
             String path = "C:\\Users\\nareshm\\Videos\\Naresh Downloads\\Java";
             List<SearchResult> searchResults = youtubeSearch.find(searchQuery);
+            String filterRecords = filterRecords(searchResults);
             WorkerPool.getInstance();
-            searchResults.forEach(searchResult -> {
+            searchResults.stream().filter(searchResult -> searchResult.getId().getVideoId().equals(filterRecords)).forEach(searchResult -> {
                 String url = createURL(searchResult.getId().getVideoId());
                 String name = searchResult.getSnippet().getTitle();
                 //don't download file if its in the directory
@@ -73,12 +74,30 @@ public class ConcurrentDownloader {
 
     }
 
+    private static String filterRecords(List<SearchResult> searchResults) throws IOException {
+        String inputQuery;
+
+        System.out.print("Please enter Video Id to Download: ");
+        inputQuery = getInputString();
+        if (inputQuery.length() < 1) {
+            // Use the string "YouTube Developers Live" as a default.
+            inputQuery = "YouTube Developers Live";
+        }
+        return inputQuery;
+    }
+
+    private static String getInputString() throws IOException {
+        String inputQuery;
+        BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
+        inputQuery = bReader.readLine();
+        return inputQuery;
+    }
+
     private static int getInputVideosToDownload() throws IOException {
         String inputQuery;
 
-        System.out.print("Please enter Number of Videos TO Download: ");
-        BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
-        inputQuery = bReader.readLine();
+        System.out.print("Please enter Number of Videos to retrieve: ");
+        inputQuery = getInputString();
 
         if (inputQuery.length() < 1) {
             // Use the string "YouTube Developers Live" as a default.
@@ -115,8 +134,7 @@ public class ConcurrentDownloader {
         String inputQuery;
 
         System.out.print("Please enter a search term: ");
-        BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
-        inputQuery = bReader.readLine();
+        inputQuery = getInputString();
 
         if (inputQuery.length() < 1) {
             // Use the string "YouTube Developers Live" as a default.

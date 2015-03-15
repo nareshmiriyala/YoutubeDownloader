@@ -19,14 +19,14 @@ public class AppManagedDownload {
     VideoInfo info;
     long last;
 
-    public void run(String url, File path,String title) {
+    public void run(String url, File path, String title) {
         try {
             AtomicBoolean stop = new AtomicBoolean(false);
             AtomicInteger retryCount = new AtomicInteger(0);
             Runnable notify = () -> {
                 VideoInfo i1 = info;
                 DownloadInfo i2 = i1.getInfo();
-                String s = Thread.currentThread().getName() + ":: "+title+":: ";
+                String s = Thread.currentThread().getName() + ":: " + title + ":: ";
 
                 // notify app or save download state
                 // you can extract information from DownloadInfo info;
@@ -34,12 +34,13 @@ public class AppManagedDownload {
                     case EXTRACTING:
                     case EXTRACTING_DONE:
                     case DONE:
-                        System.out.println(s+i1.getState() + " " + i1.getVideoQuality());
+                        System.out.println(s + i1.getState() + " " + i1.getVideoQuality());
                         break;
                     case RETRYING:
-                        System.out.println(s+i1.getState() + " " + i1.getDelay());
+                        System.out.println(s + i1.getState() + " " + i1.getDelay());
                         retryCount.incrementAndGet();
                         if (retryCount.get() > 10) {
+                            System.out.println("Can't Download the Video");
                             throw new RuntimeException("Cant Download the file");
                         }
                         break;
