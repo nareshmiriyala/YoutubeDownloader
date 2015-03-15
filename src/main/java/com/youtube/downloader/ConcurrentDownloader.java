@@ -21,9 +21,18 @@ public class ConcurrentDownloader {
         Search youtubeSearch = new Search();
         AtomicInteger count = new AtomicInteger(0);
         AtomicInteger videosToDownload = new AtomicInteger(10);
+        int inDownload = 0;
         String searchQuery = null;
         try {
             searchQuery = getInputQuery();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            inDownload = getInputVideosToDownload();
+            if (inDownload > 0) {
+                videosToDownload.set(inDownload);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -46,7 +55,7 @@ public class ConcurrentDownloader {
                 }
             });
             if (count.get() == 0) {
-                videosToDownload.addAndGet(10);
+                videosToDownload.addAndGet(inDownload);
             }
             if (count.get() >= 1) {
                 break;
@@ -62,6 +71,20 @@ public class ConcurrentDownloader {
         }
 
 
+    }
+
+    private static int getInputVideosToDownload() throws IOException {
+        String inputQuery;
+
+        System.out.print("Please enter Number of Videos TO Download: ");
+        BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
+        inputQuery = bReader.readLine();
+
+        if (inputQuery.length() < 1) {
+            // Use the string "YouTube Developers Live" as a default.
+            inputQuery = "5";
+        }
+        return Integer.parseInt(inputQuery);
     }
 
     private static boolean isFileExists(String name, String path) {
