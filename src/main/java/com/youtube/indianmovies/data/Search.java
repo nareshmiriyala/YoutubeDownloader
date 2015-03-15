@@ -173,7 +173,6 @@ public class Search {
 //            prettyPrint(playlistItemList.size(), playlistItemList.iterator());
             // Prompt the user to enter a query term.
             //  String queryTerm = getInputQuery();
-            String queryTerm = searchQuery;
 
             // Define the API request for retrieving search results.
             YouTube.Search.List search = youtube.search().list("id,snippet");
@@ -183,7 +182,7 @@ public class Search {
             // {{ https://cloud.google.com/console }}
             String apiKey = properties.getProperty("youtube.apikey");
             search.setKey(apiKey);
-            search.setQ(queryTerm);
+            search.setQ(searchQuery);
 
             // Restrict the search results to only include videos. See:
             // https://developers.google.com/youtube/v3/docs/search/list#type
@@ -198,7 +197,7 @@ public class Search {
             SearchListResponse searchResponse = search.execute();
             searchResultList = searchResponse.getItems();
             if (searchResultList != null) {
-                prettyPrint(searchResultList.iterator(), queryTerm);
+                prettyPrint(searchResultList.iterator(), searchQuery);
             }
         } catch (GoogleJsonResponseException e) {
             System.err.println("There was a service error: " + e.getDetails().getCode() + " : "

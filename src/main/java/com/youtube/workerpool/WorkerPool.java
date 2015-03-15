@@ -19,18 +19,14 @@ public class WorkerPool {
             synchronized (WorkerPool.class) {
                 if (workerPool == null) {
                     workerPool = new WorkerPool();
-                    try {
-                        createWorkerPool();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    createWorkerPool();
                 }
             }
         }
         return workerPool;
     }
 
-    private static void createWorkerPool() throws InterruptedException {
+    private static void createWorkerPool() {
         //Get the ThreadFactory implementation to use
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         //creating the ThreadPoolExecutor

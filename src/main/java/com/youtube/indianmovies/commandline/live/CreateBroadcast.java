@@ -17,10 +17,10 @@ package com.youtube.indianmovies.commandline.live;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.util.DateTime;
-import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
 import com.google.common.collect.Lists;
+import com.youtube.indianmovies.commandline.Auth;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -160,7 +160,7 @@ public class CreateBroadcast {
      */
     private static String getBroadcastTitle() throws IOException {
 
-        String title = "";
+        String title;
 
         System.out.print("Please enter a broadcast title: ");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
@@ -178,7 +178,7 @@ public class CreateBroadcast {
      */
     private static String getStreamTitle() throws IOException {
 
-        String title = "";
+        String title;
 
         System.out.print("Please enter a stream title: ");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
