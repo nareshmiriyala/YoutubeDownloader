@@ -73,7 +73,7 @@ public class ConcurrentDownloader {
         }
         File[] listFiles = new File(path).listFiles();
         Pattern pattern = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
-        for (File file : listFiles)
+        for (File file : listFiles != null ? listFiles : new File[0])
             if (file.isFile()) {
                 Matcher matcher = pattern.matcher(file.getName());
                 if (matcher.lookingAt()) {

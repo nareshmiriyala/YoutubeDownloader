@@ -16,12 +16,12 @@ package com.youtube.indianmovies.data;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoListResponse;
 import com.google.api.services.youtube.model.VideoSnippet;
 import com.google.common.collect.Lists;
+import com.youtube.indianmovies.commandline.Auth;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -94,7 +94,7 @@ public class UpdateVideo {
             // provided tag to the list of tags associated with the video.
             List<String> tags = snippet.getTags();
             if (tags == null) {
-                tags = new ArrayList<String>(1);
+                tags = new ArrayList<>(1);
                 snippet.setTags(tags);
             }
             tags.add(tag);
@@ -126,7 +126,7 @@ public class UpdateVideo {
      */
     private static String getTagFromUser() throws IOException {
 
-        String keyword = "";
+        String keyword;
 
         System.out.print("Please enter a tag for your video: ");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
@@ -144,7 +144,7 @@ public class UpdateVideo {
      */
     private static String getVideoIdFromUser() throws IOException {
 
-        String videoId = "";
+        String videoId;
 
         System.out.print("Please enter a video Id to update: ");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));

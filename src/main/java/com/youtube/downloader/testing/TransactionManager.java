@@ -9,8 +9,8 @@ public class TransactionManager extends AbstractJob {
     private static WalletFactory walletFactory;
     private static WalletAdjustManager walletAdjustManager;
 
-    public TransactionManager(String jobName) {
-        super(jobName);
+    public TransactionManager() {
+        super("Wallet");
     }
 
     @Override

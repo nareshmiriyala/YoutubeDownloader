@@ -13,9 +13,9 @@ public class MyMonitorThread implements Runnable {
 
     private boolean run = true;
 
-    public MyMonitorThread(ThreadPoolExecutor executor, int delay) {
+    public MyMonitorThread(ThreadPoolExecutor executor) {
         this.executor = executor;
-        this.seconds = delay;
+        this.seconds = 3;
     }
 
     public void shutdown() {

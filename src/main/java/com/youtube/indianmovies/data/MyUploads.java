@@ -16,13 +16,11 @@ package com.youtube.indianmovies.data;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.Channel;
-import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.PlaylistItem;
 import com.google.api.services.youtube.model.PlaylistItemListResponse;
 import com.google.common.collect.Lists;
+import com.youtube.indianmovies.commandline.Auth;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -84,7 +82,7 @@ public class MyUploads {
 //                        channelsList.get(0).getContentDetails().getRelatedPlaylists().getUploads();
 
                 // Define a list to store items in the list of uploaded videos.
-                List<PlaylistItem> playlistItemList = new ArrayList<PlaylistItem>();
+            List<PlaylistItem> playlistItemList = new ArrayList<>();
 
                 // Retrieve the playlist of the channel's uploaded videos.
                 YouTube.PlaylistItems.List playlistItemRequest =

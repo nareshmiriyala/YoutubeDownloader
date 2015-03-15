@@ -19,12 +19,12 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.googleapis.media.MediaHttpUploader;
 import com.google.api.client.googleapis.media.MediaHttpUploaderProgressListener;
 import com.google.api.client.http.InputStreamContent;
-import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoSnippet;
 import com.google.api.services.youtube.model.VideoStatus;
 import com.google.common.collect.Lists;
+import com.youtube.indianmovies.commandline.Auth;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,18 +41,16 @@ import java.util.List;
 public class UploadVideo {
 
     /**
-     * Define a global instance of a Youtube object, which will be used
-     * to make YouTube Data API requests.
-     */
-    private static YouTube youtube;
-
-    /**
      * Define a global variable that specifies the MIME type of the video
      * being uploaded.
      */
     private static final String VIDEO_FILE_FORMAT = "video/*";
-
     private static final String SAMPLE_VIDEO_FILENAME = "sample-video.mp4";
+    /**
+     * Define a global instance of a Youtube object, which will be used
+     * to make YouTube Data API requests.
+     */
+    private static YouTube youtube;
 
     /**
      * Upload the user-selected video to the user's YouTube channel. The code
@@ -100,7 +98,7 @@ public class UploadVideo {
                     "Video uploaded via YouTube Data API V3 using the Java library " + "on " + cal.getTime());
 
             // Set the keyword tags that you want to associate with the video.
-            List<String> tags = new ArrayList<String>();
+            List<String> tags = new ArrayList<>();
             tags.add("test");
             tags.add("example");
             tags.add("java");
@@ -135,26 +133,24 @@ public class UploadVideo {
             // time and bandwidth in the event of network failures.
             uploader.setDirectUploadEnabled(false);
 
-            MediaHttpUploaderProgressListener progressListener = new MediaHttpUploaderProgressListener() {
-                public void progressChanged(MediaHttpUploader uploader) throws IOException {
-                    switch (uploader.getUploadState()) {
-                        case INITIATION_STARTED:
-                            System.out.println("Initiation Started");
-                            break;
-                        case INITIATION_COMPLETE:
-                            System.out.println("Initiation Completed");
-                            break;
-                        case MEDIA_IN_PROGRESS:
-                            System.out.println("Upload in progress");
-                            System.out.println("Upload percentage: " + uploader.getProgress());
-                            break;
-                        case MEDIA_COMPLETE:
-                            System.out.println("Upload Completed!");
-                            break;
-                        case NOT_STARTED:
-                            System.out.println("Upload Not Started!");
-                            break;
-                    }
+            MediaHttpUploaderProgressListener progressListener = uploader1 -> {
+                switch (uploader1.getUploadState()) {
+                    case INITIATION_STARTED:
+                        System.out.println("Initiation Started");
+                        break;
+                    case INITIATION_COMPLETE:
+                        System.out.println("Initiation Completed");
+                        break;
+                    case MEDIA_IN_PROGRESS:
+                        System.out.println("Upload in progress");
+                        System.out.println("Upload percentage: " + uploader1.getProgress());
+                        break;
+                    case MEDIA_COMPLETE:
+                        System.out.println("Upload Completed!");
+                        break;
+                    case NOT_STARTED:
+                        System.out.println("Upload Not Started!");
+                        break;
                 }
             };
             uploader.setProgressListener(progressListener);

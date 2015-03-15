@@ -2,8 +2,6 @@
 package com.youtube.indianmovies.data;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
 import com.youtube.indianmovies.commandline.Auth;
@@ -49,7 +47,7 @@ public class Search {
      */
     private static String getInputQuery() throws IOException {
 
-        String inputQuery = "";
+        String inputQuery;
 
         System.out.print("Please enter a search term: ");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
@@ -144,10 +142,7 @@ public class Search {
             // argument is required, but since we don't need anything
             // initialized when the HttpRequest is initialized, we override
             // the interface and provide a no-op function.
-            youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, new HttpRequestInitializer() {
-                @Override
-                public void initialize(HttpRequest request) throws IOException {
-                }
+            youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, request -> {
             }).setApplicationName("youtube-cmdline-search-sample").build();
 
 //            // Define a list to store items in the list of uploaded videos.

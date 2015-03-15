@@ -20,7 +20,7 @@ public class WorkerPool {
                 if (workerPool == null) {
                     workerPool = new WorkerPool();
                     try {
-                        workerPool.createWorkerPool();
+                        createWorkerPool();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -34,10 +34,10 @@ public class WorkerPool {
         //Get the ThreadFactory implementation to use
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         //creating the ThreadPoolExecutor
-        executorPool = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTimeInMinutes, TimeUnit.MINUTES, new ArrayBlockingQueue<Runnable>(20), threadFactory);
+        executorPool = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTimeInMinutes, TimeUnit.MINUTES, new ArrayBlockingQueue<>(20), threadFactory);
         executorPool.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         //start the monitoring thread
-        monitor = new MyMonitorThread(executorPool, 3);
+        monitor = new MyMonitorThread(executorPool);
         Thread monitorThread = new Thread(monitor);
         monitorThread.start();
     }

@@ -19,11 +19,11 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.googleapis.media.MediaHttpUploader;
 import com.google.api.client.googleapis.media.MediaHttpUploaderProgressListener;
 import com.google.api.client.http.InputStreamContent;
-import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.YouTube.Thumbnails.Set;
 import com.google.api.services.youtube.model.ThumbnailSetResponse;
 import com.google.common.collect.Lists;
+import com.youtube.indianmovies.commandline.Auth;
 
 import java.io.*;
 import java.util.List;
@@ -38,16 +38,15 @@ import java.util.List;
 public class UploadThumbnail {
 
     /**
-     * Define a global instance of a Youtube object, which will be used
-     * to make YouTube Data API requests.
-     */
-    private static YouTube youtube;
-
-    /**
      * Define a global variable that specifies the MIME type of the image
      * being uploaded.
      */
     private static final String IMAGE_FILE_FORMAT = "image/png";
+    /**
+     * Define a global instance of a Youtube object, which will be used
+     * to make YouTube Data API requests.
+     */
+    private static YouTube youtube;
 
     /**
      * Prompt the user to specify a video ID and the path for a thumbnail
@@ -101,37 +100,34 @@ public class UploadThumbnail {
             uploader.setDirectUploadEnabled(false);
 
             // Set the upload state for the thumbnail image.
-            MediaHttpUploaderProgressListener progressListener = new MediaHttpUploaderProgressListener() {
-                @Override
-                public void progressChanged(MediaHttpUploader uploader) throws IOException {
-                    switch (uploader.getUploadState()) {
-                        // This value is set before the initiation request is
-                        // sent.
-                        case INITIATION_STARTED:
-                            System.out.println("Initiation Started");
-                            break;
-                        // This value is set after the initiation request
-                        //  completes.
-                        case INITIATION_COMPLETE:
-                            System.out.println("Initiation Completed");
-                            break;
-                        // This value is set after a media file chunk is
-                        // uploaded.
-                        case MEDIA_IN_PROGRESS:
-                            System.out.println("Upload in progress");
-                            System.out.println("Upload percentage: " + uploader.getProgress());
-                            break;
-                        // This value is set after the entire media file has
-                        //  been successfully uploaded.
-                        case MEDIA_COMPLETE:
-                            System.out.println("Upload Completed!");
-                            break;
-                        // This value indicates that the upload process has
-                        //  not started yet.
-                        case NOT_STARTED:
-                            System.out.println("Upload Not Started!");
-                            break;
-                    }
+            MediaHttpUploaderProgressListener progressListener = uploader1 -> {
+                switch (uploader1.getUploadState()) {
+                    // This value is set before the initiation request is
+                    // sent.
+                    case INITIATION_STARTED:
+                        System.out.println("Initiation Started");
+                        break;
+                    // This value is set after the initiation request
+                    //  completes.
+                    case INITIATION_COMPLETE:
+                        System.out.println("Initiation Completed");
+                        break;
+                    // This value is set after a media file chunk is
+                    // uploaded.
+                    case MEDIA_IN_PROGRESS:
+                        System.out.println("Upload in progress");
+                        System.out.println("Upload percentage: " + uploader1.getProgress());
+                        break;
+                    // This value is set after the entire media file has
+                    //  been successfully uploaded.
+                    case MEDIA_COMPLETE:
+                        System.out.println("Upload Completed!");
+                        break;
+                    // This value indicates that the upload process has
+                    //  not started yet.
+                    case NOT_STARTED:
+                        System.out.println("Upload Not Started!");
+                        break;
                 }
             };
             uploader.setProgressListener(progressListener);
@@ -159,7 +155,7 @@ public class UploadThumbnail {
      */
     private static String getVideoIdFromUser() throws IOException {
 
-        String inputVideoId = "";
+        String inputVideoId;
 
         System.out.print("Please enter a video Id to update: ");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
@@ -179,7 +175,7 @@ public class UploadThumbnail {
      */
     private static File getImageFromUser() throws IOException {
 
-        String path = "";
+        String path;
 
         System.out.print("Please enter the path of the image file to upload: ");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));

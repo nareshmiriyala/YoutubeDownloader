@@ -16,10 +16,10 @@ package com.youtube.indianmovies.data;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
 import com.google.common.collect.Lists;
+import com.youtube.indianmovies.commandline.Auth;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -34,16 +34,15 @@ import java.util.List;
 public class PlaylistUpdates {
 
     /**
-     * Define a global instance of a Youtube object, which will be used
-     * to make YouTube Data API requests.
-     */
-    private static YouTube youtube;
-
-    /**
      * Define a global variable that identifies the video that will be added
      * to the new playlist.
      */
     private static final String VIDEO_ID = "SZj6rAYkYOg";
+    /**
+     * Define a global instance of a Youtube object, which will be used
+     * to make YouTube Data API requests.
+     */
+    private static YouTube youtube;
 
     /**
      * Authorize the user, create a playlist, and add an item to the playlist.
@@ -69,7 +68,7 @@ public class PlaylistUpdates {
             String playlistId = insertPlaylist();
 
             // If a valid playlist was created, add a video to that playlist.
-            insertPlaylistItem(playlistId, VIDEO_ID);
+            insertPlaylistItem(playlistId);
 
         } catch (GoogleJsonResponseException e) {
             System.err.println("There was a service error: " + e.getDetails().getCode() + " : " + e.getDetails().getMessage());
@@ -121,17 +120,16 @@ public class PlaylistUpdates {
     /**
      * Create a playlist item with the specified video ID and add it to the
      * specified playlist.
+     *  @param playlistId assign to newly created playlistitem
      *
-     * @param playlistId assign to newly created playlistitem
-     * @param videoId    YouTube video id to add to playlistitem
      */
-    private static String insertPlaylistItem(String playlistId, String videoId) throws IOException {
+    private static String insertPlaylistItem(String playlistId) throws IOException {
 
         // Define a resourceId that identifies the video being added to the
         // playlist.
         ResourceId resourceId = new ResourceId();
         resourceId.setKind("youtube#video");
-        resourceId.setVideoId(videoId);
+        resourceId.setVideoId(PlaylistUpdates.VIDEO_ID);
 
         // Set fields included in the playlistItem resource's "snippet" part.
         PlaylistItemSnippet playlistItemSnippet = new PlaylistItemSnippet();

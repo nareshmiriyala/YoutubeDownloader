@@ -15,14 +15,12 @@
 package com.youtube.indianmovies.data;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Thumbnail;
+import com.youtube.indianmovies.commandline.Auth;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -123,9 +121,7 @@ public class Topics {
             // argument is required, but since we don't need anything
             // initialized when the HttpRequest is initialized, we override
             // the interface and provide a no-op function.
-            youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, new HttpRequestInitializer() {
-                public void initialize(HttpRequest request) throws IOException {
-                }
+            youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, request -> {
             })
             .setApplicationName("youtube-cmdline-search-sample")
             .build();
@@ -176,7 +172,7 @@ public class Topics {
      */
     private static String getInputQuery(String searchCategory) throws IOException {
 
-        String inputQuery = "";
+        String inputQuery;
 
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -207,7 +203,7 @@ public class Topics {
         // JSON response into a Java object. You can learn more about the
         // Freebase search calls at: http://wiki.freebase.com/wiki/ApiSearch.
         HttpClient httpclient = new DefaultHttpClient();
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("query", topicQuery));
         params.add(new BasicNameValuePair("limit", Long.toString(NUMBER_OF_TOPICS_RETURNED)));
 
@@ -218,8 +214,7 @@ public class Topics {
         HttpEntity entity = httpResponse.getEntity();
 
         if (entity != null) {
-            InputStream instream = entity.getContent();
-            try {
+            try (InputStream instream = entity.getContent()) {
 
                 // Convert the JSON to an object. This code does not do an
                 // exact map from JSON to POJO (Plain Old Java object), but
@@ -238,8 +233,6 @@ public class Topics {
                     // results.
                     topicsId = getUserChoice(arrayNodeResults);
                 }
-            } finally {
-                instream.close();
             }
         }
         return topicsId;

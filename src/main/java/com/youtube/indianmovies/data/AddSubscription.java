@@ -16,12 +16,12 @@ package com.youtube.indianmovies.data;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.Subscription;
 import com.google.api.services.youtube.model.SubscriptionSnippet;
 import com.google.common.collect.Lists;
+import com.youtube.indianmovies.commandline.Auth;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -108,7 +108,7 @@ public class AddSubscription {
      */
     private static String getChannelId() throws IOException {
 
-        String channelId = "";
+        String channelId;
 
         System.out.print("Please enter a channel id: ");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));

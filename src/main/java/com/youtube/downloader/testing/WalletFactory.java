@@ -22,7 +22,7 @@ public class WalletFactory {
     }
 
     public WalletAdjustManager createWalletAdjustManager(boolean isHVD) {
-        WalletAdjustManager walletAdjustManager = null;
+        WalletAdjustManager walletAdjustManager;
         if (isHVD) {
             walletAdjustManager = HVDDefaultWalletAdjustManager.getInstance();
         } else {

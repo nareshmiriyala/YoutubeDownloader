@@ -8,7 +8,7 @@ import com.youtube.workerpool.WorkerPool;
 public class WalletTest {
     public static void main(String[] args) {
         WorkerPool.getInstance();
-        TransactionManager transactionManager = new TransactionManager("Wallet");
+        TransactionManager transactionManager = new TransactionManager();
         WorkerPool.deployJob(transactionManager);
         WorkerPool.deployJob(transactionManager);
         WorkerPool.deployJob(transactionManager);

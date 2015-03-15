@@ -15,17 +15,10 @@
 package com.youtube.indianmovies.data;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.util.Joiner;
-import com.youtube.indianmovies.commandline.Auth;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.GeoPoint;
-import com.google.api.services.youtube.model.SearchListResponse;
-import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Thumbnail;
-import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.VideoListResponse;
+import com.google.api.services.youtube.model.*;
+import com.youtube.indianmovies.commandline.Auth;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * This sample lists videos that are associated with a particular keyword and are in the radius of
@@ -87,10 +81,7 @@ public class GeolocationSearch {
             // argument is required, but since we don't need anything
             // initialized when the HttpRequest is initialized, we override
             // the interface and provide a no-op function.
-            youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, new HttpRequestInitializer() {
-                @Override
-                public void initialize(HttpRequest request) throws IOException {
-                }
+            youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, request -> {
             }).setApplicationName("youtube-cmdline-geolocationsearch-sample").build();
 
             // Prompt the user to enter a query term.
@@ -126,14 +117,12 @@ public class GeolocationSearch {
             // Call the API and print results.
             SearchListResponse searchResponse = search.execute();
             List<SearchResult> searchResultList = searchResponse.getItems();
-            List<String> videoIds = new ArrayList<String>();
+            List<String> videoIds = new ArrayList<>();
 
             if (searchResultList != null) {
 
                 // Merge video IDs
-                for (SearchResult searchResult : searchResultList) {
-                    videoIds.add(searchResult.getId().getVideoId());
-                }
+                videoIds.addAll(searchResultList.stream().map(searchResult -> searchResult.getId().getVideoId()).collect(Collectors.toList()));
                 Joiner stringJoiner = Joiner.on(',');
                 String videoId = stringJoiner.join(videoIds);
 
@@ -163,7 +152,7 @@ public class GeolocationSearch {
      */
     private static String getInputQuery() throws IOException {
 
-        String inputQuery = "";
+        String inputQuery;
 
         System.out.print("Please enter a search term: ");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
@@ -181,7 +170,7 @@ public class GeolocationSearch {
      */
     private static String getInputLocation() throws IOException {
 
-        String inputQuery = "";
+        String inputQuery;
 
         System.out.print("Please enter location coordinates (example: 37.42307,-122.08427): ");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
@@ -199,7 +188,7 @@ public class GeolocationSearch {
      */
     private static String getInputLocationRadius() throws IOException {
 
-        String inputQuery = "";
+        String inputQuery;
 
         System.out.print("Please enter a location radius (examples: 5km, 8mi):");
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
