@@ -3,7 +3,10 @@ package com.youtube.indianmovies.data;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.*;
+import com.google.api.services.youtube.model.PlaylistItem;
+import com.google.api.services.youtube.model.ResourceId;
+import com.google.api.services.youtube.model.SearchListResponse;
+import com.google.api.services.youtube.model.SearchResult;
 import com.youtube.indianmovies.commandline.Auth;
 
 import java.io.BufferedReader;
@@ -78,7 +81,6 @@ public class Search {
         if (!iteratorSearchResults.hasNext()) {
             System.out.println(" There aren't any results for your query.");
         }
-        int number = 1;
         while (iteratorSearchResults.hasNext()) {
 
             SearchResult singleVideo = iteratorSearchResults.next();
@@ -87,8 +89,6 @@ public class Search {
             // Confirm that the result represents a video. Otherwise, the
             // item will not contain a video ID.
             if (rId.getKind().equals("youtube#video")) {
-                Thumbnail thumbnail = singleVideo.getSnippet().getThumbnails().getDefault();
-
                 System.out.print("** Video Id:" + rId.getVideoId() + " ");
                 System.out.print("** Title: " + singleVideo.getSnippet().getTitle());
                 System.out.println();
