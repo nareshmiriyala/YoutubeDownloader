@@ -15,6 +15,8 @@
 package com.youtube.indianmovies.data;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.util.Joiner;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
@@ -81,7 +83,10 @@ public class GeolocationSearch {
             // argument is required, but since we don't need anything
             // initialized when the HttpRequest is initialized, we override
             // the interface and provide a no-op function.
-            youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, request -> {
+           youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, new HttpRequestInitializer() {
+                @Override
+                public void initialize(HttpRequest request) throws IOException {
+                }
             }).setApplicationName("youtube-cmdline-geolocationsearch-sample").build();
 
             // Prompt the user to enter a query term.
@@ -121,8 +126,10 @@ public class GeolocationSearch {
 
             if (searchResultList != null) {
 
-                // Merge video IDs
-                videoIds.addAll(searchResultList.stream().map(searchResult -> searchResult.getId().getVideoId()).collect(Collectors.toList()));
+                 // Merge video IDs
+                for (SearchResult searchResult : searchResultList) {
+                    videoIds.add(searchResult.getId().getVideoId());
+                }
                 Joiner stringJoiner = Joiner.on(',');
                 String videoId = stringJoiner.join(videoIds);
 

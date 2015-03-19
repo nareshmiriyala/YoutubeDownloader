@@ -42,19 +42,22 @@ public class ConcurrentDownloader {
             List<SearchResult> searchResults = youtubeSearch.find(searchQuery);
             String filterRecords = filterRecords(searchResults);
             WorkerPool.getInstance();
-            searchResults.stream().filter(searchResult -> searchResult.getId().getVideoId().equals(filterRecords)).forEach(searchResult -> {
-                String url = createURL(searchResult.getId().getVideoId());
-                String name = searchResult.getSnippet().getTitle();
-                //don't download file if its in the directory
-                if (!isFileExists(name, path)) {
-                    DownloadJob downloadJob = new DownloadJob("Download Job:" + url);
-                    downloadJob.setFileDownloadPath(path);
-                    downloadJob.setUrlToDownload(url);
-                    downloadJob.setTitle(name);
-                    count.incrementAndGet();
-                    WorkerPool.deployJob(downloadJob);
+            for(SearchResult searchResult:searchResults){
+                if(searchResult.getId().getVideoId().equals(filterRecords)){
+                    String url = createURL(searchResult.getId().getVideoId());
+                    String name = searchResult.getSnippet().getTitle();
+                    //don't download file if its in the directory
+                    if (!isFileExists(name, path)) {
+                        DownloadJob downloadJob = new DownloadJob("Download Job:" + url);
+                        downloadJob.setFileDownloadPath(path);
+                        downloadJob.setUrlToDownload(url);
+                        downloadJob.setTitle(name);
+                        count.incrementAndGet();
+                        WorkerPool.deployJob(downloadJob);
                 }
-            });
+                }
+            }
+           
             if (count.get() == 0) {
                 videosToDownload.addAndGet(inDownload);
             }

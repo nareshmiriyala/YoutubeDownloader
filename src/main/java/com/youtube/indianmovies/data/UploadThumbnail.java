@@ -100,34 +100,37 @@ public class UploadThumbnail {
             uploader.setDirectUploadEnabled(false);
 
             // Set the upload state for the thumbnail image.
-            MediaHttpUploaderProgressListener progressListener = uploader1 -> {
-                switch (uploader1.getUploadState()) {
-                    // This value is set before the initiation request is
-                    // sent.
-                    case INITIATION_STARTED:
-                        System.out.println("Initiation Started");
-                        break;
-                    // This value is set after the initiation request
-                    //  completes.
-                    case INITIATION_COMPLETE:
-                        System.out.println("Initiation Completed");
-                        break;
-                    // This value is set after a media file chunk is
-                    // uploaded.
-                    case MEDIA_IN_PROGRESS:
-                        System.out.println("Upload in progress");
-                        System.out.println("Upload percentage: " + uploader1.getProgress());
-                        break;
-                    // This value is set after the entire media file has
-                    //  been successfully uploaded.
-                    case MEDIA_COMPLETE:
-                        System.out.println("Upload Completed!");
-                        break;
-                    // This value indicates that the upload process has
-                    //  not started yet.
-                    case NOT_STARTED:
-                        System.out.println("Upload Not Started!");
-                        break;
+             MediaHttpUploaderProgressListener progressListener = new MediaHttpUploaderProgressListener() {
+                @Override
+                public void progressChanged(MediaHttpUploader uploader) throws IOException {
+                    switch (uploader.getUploadState()) {
+                        // This value is set before the initiation request is
+                        // sent.
+                        case INITIATION_STARTED:
+                            System.out.println("Initiation Started");
+                            break;
+                        // This value is set after the initiation request
+                        //  completes.
+                        case INITIATION_COMPLETE:
+                            System.out.println("Initiation Completed");
+                            break;
+                        // This value is set after a media file chunk is
+                        // uploaded.
+                        case MEDIA_IN_PROGRESS:
+                            System.out.println("Upload in progress");
+                            System.out.println("Upload percentage: " + uploader.getProgress());
+                            break;
+                        // This value is set after the entire media file has
+                        //  been successfully uploaded.
+                        case MEDIA_COMPLETE:
+                            System.out.println("Upload Completed!");
+                            break;
+                        // This value indicates that the upload process has
+                        //  not started yet.
+                        case NOT_STARTED:
+                            System.out.println("Upload Not Started!");
+                            break;
+                    }
                 }
             };
             uploader.setProgressListener(progressListener);
