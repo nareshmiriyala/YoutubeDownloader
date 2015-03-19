@@ -20,11 +20,14 @@ public class AppManagedDownload {
     VideoInfo info;
     long last;
 
-    public void run(String url, File path, String title) {
+    public void run(String url, File path, final String title) {
         try {
             AtomicBoolean stop = new AtomicBoolean(false);
-            AtomicInteger retryCount = new AtomicInteger(0);
-            Runnable notify = () -> {
+            final AtomicInteger retryCount = new AtomicInteger(0);
+            Runnable notify =new Runnable() {
+                @Override
+                public void run() {
+
                 VideoInfo i1 = info;
                 DownloadInfo i2 = i1.getInfo();
                 String s = Thread.currentThread().getName() + ":: " + title + ":: ";
@@ -70,7 +73,7 @@ public class AppManagedDownload {
                     default:
                         break;
                 }
-            };
+            }};
 
             info = new VideoInfo(new URL(url));
 
