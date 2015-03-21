@@ -4,11 +4,14 @@ package com.youtube.workerpool;
  * Created by nareshm on 12/3/14.
  */
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class MyMonitorThread implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(MyMonitorThread.class);
     private ThreadPoolExecutor executor;
-
     private int seconds;
 
     private boolean run = true;
@@ -25,7 +28,7 @@ public class MyMonitorThread implements Runnable {
     @Override
     public void run() {
         while (run) {
-            System.out.println(
+            logger.info(
                     String.format("[monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, isShutdown: %s, isTerminated: %s",
                             this.executor.getPoolSize(),
                             this.executor.getCorePoolSize(),
@@ -37,7 +40,7 @@ public class MyMonitorThread implements Runnable {
             try {
                 Thread.sleep(seconds * 1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("Error:" + e);
             }
         }
 

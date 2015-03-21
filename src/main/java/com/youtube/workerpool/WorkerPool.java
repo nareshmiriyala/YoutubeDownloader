@@ -1,8 +1,13 @@
 package com.youtube.workerpool;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.*;
 
 public class WorkerPool {
+    private static final Logger logger = LoggerFactory.getLogger(WorkerPool.class);
+
     private static final int corePoolSize = 5;
     private static final int maximumPoolSize = 10;
     private static final long keepAliveTimeInMinutes = 60;
@@ -27,6 +32,7 @@ public class WorkerPool {
     }
 
     private static void createWorkerPool() {
+        logger.debug("creating worked pool");
         //Get the ThreadFactory implementation to use
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         //creating the ThreadPoolExecutor
@@ -38,6 +44,7 @@ public class WorkerPool {
     }
 
     public static void shutdown() throws InterruptedException {
+        logger.debug("Shutting down the WorkerPool");
         //shut down the pool
         executorPool.shutdown();
         executorPool.awaitTermination(1, TimeUnit.DAYS);
@@ -47,7 +54,7 @@ public class WorkerPool {
     }
 
     public static void deployJob(AbstractJob job) {
-
+        logger.debug("Deployed Job in the Pool:", job);
         executorPool.submit(job);
     }
 }

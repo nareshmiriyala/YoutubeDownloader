@@ -2,14 +2,13 @@
 package com.youtube.indianmovies.data;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.PlaylistItem;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
-import com.youtube.indianmovies.commandline.Auth;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,12 +31,9 @@ public class Search {
      */
     private static final String PROPERTIES_FILENAME = "youtube.properties";
 
+    private static final Logger logger = LoggerFactory.getLogger(Search.class);
+
     private static long numberOfVideosReturned;
-    /**
-     * Define a global instance of a Youtube object, which will be used
-     * to make YouTube Data API requests.
-     */
-    private static YouTube youtube;
 
     public static long getNumberOfVideosReturned() {
         return numberOfVideosReturned;
@@ -75,13 +71,13 @@ public class Search {
      */
     private static void prettyPrint(Iterator<SearchResult> iteratorSearchResults, String query) {
 
-        System.out.println("\n=============================================================");
-        System.out.println(
+        logger.debug("\n=============================================================");
+        logger.debug(
                 "   First " + numberOfVideosReturned + " videos for search on \"" + query + "\".");
-        System.out.println("=============================================================\n");
+        logger.debug("=============================================================\n");
 
         if (!iteratorSearchResults.hasNext()) {
-            System.out.println(" There aren't any results for your query.");
+            logger.warn(" There aren't any results for your query.");
         }
         while (iteratorSearchResults.hasNext()) {
 
@@ -96,7 +92,7 @@ public class Search {
                 System.out.println();
             }
         }
-        System.out.println("\n-------------------------------------------------------------\n");
+        logger.debug("\n-------------------------------------------------------------\n");
 
     }
 
@@ -109,16 +105,16 @@ public class Search {
     * @param iterator of Playlist Items from uploaded Playlist
     */
     private static void prettyPrint(int size, Iterator<PlaylistItem> playlistEntries) {
-        System.out.println("=============================================================");
-        System.out.println("\t\tTotal Videos Uploaded: " + size);
-        System.out.println("=============================================================\n");
+        logger.debug("=============================================================");
+        logger.debug("\t\tTotal Videos Uploaded: " + size);
+        logger.debug("=============================================================\n");
 
         while (playlistEntries.hasNext()) {
             PlaylistItem playlistItem = playlistEntries.next();
-            System.out.println(" video name  = " + playlistItem.getSnippet().getTitle());
-            System.out.println(" video id    = " + playlistItem.getContentDetails().getVideoId());
-            System.out.println(" upload date = " + playlistItem.getSnippet().getPublishedAt());
-            System.out.println("\n-------------------------------------------------------------\n");
+            logger.debug(" video name  = " + playlistItem.getSnippet().getTitle());
+            logger.debug(" video id    = " + playlistItem.getContentDetails().getVideoId());
+            logger.debug(" upload date = " + playlistItem.getSnippet().getPublishedAt());
+            logger.debug("\n-------------------------------------------------------------\n");
         }
     }
 
@@ -137,7 +133,7 @@ public class Search {
             properties.load(in);
 
         } catch (IOException e) {
-            System.err.println("There was an error reading " + PROPERTIES_FILENAME + ": " + e.getCause()
+            logger.error("There was an error reading " + PROPERTIES_FILENAME + ": " + e.getCause()
                     + " : " + e.getMessage());
             System.exit(1);
         }
@@ -147,11 +143,11 @@ public class Search {
             // argument is required, but since we don't need anything
             // initialized when the HttpRequest is initialized, we override
             // the interface and provide a no-op function.
-             youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, new HttpRequestInitializer() {
-                @Override
-                public void initialize(HttpRequest request) throws IOException {
-                }
-            }).setApplicationName("youtube-cmdline-search-sample").build();        
+             /*
+      Define a global instance of a Youtube object, which will be used
+      to make YouTube Data API requests.
+     */
+            YouTube youtube = YoutubeBuilder.getInstance().getYouTube();
 
 //            // Define a list to store items in the list of uploaded videos.
 //            List<PlaylistItem> playlistItemList = new ArrayList<PlaylistItem>();
@@ -208,12 +204,12 @@ public class Search {
                 prettyPrint(searchResultList.iterator(), searchQuery);
             }
         } catch (GoogleJsonResponseException e) {
-            System.err.println("There was a service error: " + e.getDetails().getCode() + " : "
+            logger.error("There was a service error: " + e.getDetails().getCode() + " : "
                     + e.getDetails().getMessage());
         } catch (IOException e) {
-            System.err.println("There was an IO error: " + e.getCause() + " : " + e.getMessage());
+            logger.error("There was an IO error: " + e.getCause() + " : " + e.getMessage());
         } catch (Throwable t) {
-            t.printStackTrace();
+            logger.error("Error is:" + t);
         }
         return searchResultList;
     }
