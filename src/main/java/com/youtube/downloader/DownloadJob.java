@@ -1,6 +1,8 @@
 package com.youtube.downloader;
 
 import com.youtube.workerpool.WorkerThread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -8,6 +10,7 @@ import java.io.File;
  * Created by nareshm on 8/03/2015.
  */
 public class DownloadJob extends WorkerThread {
+    private static Logger logger = LoggerFactory.getLogger(DownloadJob.class);
     String urlToDownload;
     String fileDownloadPath;
     String title;
@@ -57,7 +60,7 @@ public class DownloadJob extends WorkerThread {
 
     @Override
     public void processCommand() {
-        System.out.println("Downloading ULR:" + this.urlToDownload + " to path:" + this.fileDownloadPath);
+        logger.info("Downloading ULR:" + this.urlToDownload + " to path:" + this.fileDownloadPath);
         appManagedDownload.run(this.urlToDownload, new File(fileDownloadPath), this.title);
 
 
