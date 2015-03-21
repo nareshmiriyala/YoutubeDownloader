@@ -19,6 +19,7 @@ public class DownloadJob extends WorkerThread {
         this.urlToDownload = urlToDownload;
         this.fileDownloadPath = fileDownloadPath;
         this.title = title;
+        this.appManagedDownload = new AppManagedDownload();
     }
 
     public DownloadJob(String s) {
@@ -27,7 +28,14 @@ public class DownloadJob extends WorkerThread {
     }
 
     public double getDownloadProgress() {
-        downloadProgress = appManagedDownload.getDownloadStatus();
+        Thread progressUpdate = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                downloadProgress = appManagedDownload.getDownloadStatus();
+
+            }
+        });
+        progressUpdate.start();
         return downloadProgress;
     }
 
@@ -39,16 +47,8 @@ public class DownloadJob extends WorkerThread {
         this.title = title;
     }
 
-    public String getFileDownloadPath() {
-        return fileDownloadPath;
-    }
-
     public void setFileDownloadPath(String fileDownloadPath) {
         this.fileDownloadPath = fileDownloadPath;
-    }
-
-    public String getUrlToDownload() {
-        return urlToDownload;
     }
 
     public void setUrlToDownload(String urlToDownload) {
