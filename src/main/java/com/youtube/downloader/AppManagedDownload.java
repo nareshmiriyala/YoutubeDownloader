@@ -19,6 +19,15 @@ public class AppManagedDownload {
 
     VideoInfo info;
     long last;
+    private double downloadStatus;
+
+    public double getDownloadStatus() {
+        return downloadStatus;
+    }
+
+    public void setDownloadStatus(double downloadStatus) {
+        this.downloadStatus = downloadStatus;
+    }
 
     public void run(String url, File path, final String title) {
         try {
@@ -38,6 +47,7 @@ public class AppManagedDownload {
                     case EXTRACTING:
                     case EXTRACTING_DONE:
                     case DONE:
+                        downloadStatus = 100;
                         System.out.println(s + i1.getState() + " " + i1.getVideoQuality());
                         break;
                     case RETRYING:
@@ -65,9 +75,9 @@ public class AppManagedDownload {
                                     }
                                 }
                             }
-
-                            System.out.println(String.format("%s %.2f %s", s + i1.getState(),
-                                    i2.getCount() / (float) i2.getLength(), parts));
+                            downloadStatus = (i2.getCount() / (float) i2.getLength());
+                            setDownloadStatus(downloadStatus);
+                            System.out.println(String.format("%s %.2f %s", s + i1.getState(), downloadStatus, parts));
                         }
                         break;
                     default:

@@ -48,13 +48,22 @@ public class ConcurrentDownloader {
                     String name = searchResult.getSnippet().getTitle();
                     //don't download file if its in the directory
                     if (!isFileExists(name, path)) {
-                        DownloadJob downloadJob = new DownloadJob("Download Job:" + url);
+                        final DownloadJob downloadJob = new DownloadJob("Download Job:" + url);
                         downloadJob.setFileDownloadPath(path);
                         downloadJob.setUrlToDownload(url);
                         downloadJob.setTitle(name);
                         count.incrementAndGet();
+                        System.out.println("Download progress 1:" + downloadJob.getDownloadProgress());
                         WorkerPool.deployJob(downloadJob);
-                }
+                        try {
+                            Thread.sleep(10000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        System.out.println("Download progress 2:" + downloadJob.getDownloadProgress());
+
+
+                    }
                 }
             }
            
