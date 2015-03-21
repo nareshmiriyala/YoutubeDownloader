@@ -3,17 +3,14 @@ package com.youtube.indianmovies.data;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.PlaylistItem;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -35,30 +32,8 @@ public class Search {
 
     private static long numberOfVideosReturned;
 
-    public static long getNumberOfVideosReturned() {
-        return numberOfVideosReturned;
-    }
-
     public static void setNumberOfVideosReturned(long numberOfVideosReturned) {
         Search.numberOfVideosReturned = numberOfVideosReturned;
-    }
-
-    /*
-     * Prompt the user to enter a query term and return the user-specified term.
-     */
-    private static String getInputQuery() throws IOException {
-
-        String inputQuery;
-
-        System.out.print("Please enter a search term: ");
-        BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
-        inputQuery = bReader.readLine();
-
-        if (inputQuery.length() < 1) {
-            // Use the string "YouTube Developers Live" as a default.
-            inputQuery = "YouTube Developers Live";
-        }
-        return inputQuery;
     }
 
     /*
@@ -96,27 +71,6 @@ public class Search {
 
     }
 
-
-    /*
-    * Print information about all of the items in the playlist.
-    *
-    * @param size size of list
-    *
-    * @param iterator of Playlist Items from uploaded Playlist
-    */
-    private static void prettyPrint(int size, Iterator<PlaylistItem> playlistEntries) {
-        logger.debug("=============================================================");
-        logger.debug("\t\tTotal Videos Uploaded: " + size);
-        logger.debug("=============================================================\n");
-
-        while (playlistEntries.hasNext()) {
-            PlaylistItem playlistItem = playlistEntries.next();
-            logger.debug(" video name  = " + playlistItem.getSnippet().getTitle());
-            logger.debug(" video id    = " + playlistItem.getContentDetails().getVideoId());
-            logger.debug(" upload date = " + playlistItem.getSnippet().getPublishedAt());
-            logger.debug("\n-------------------------------------------------------------\n");
-        }
-    }
 
     /**
      * Initialize a YouTube object to search for videos on YouTube. Then
