@@ -16,6 +16,7 @@ public class DownloadJob extends WorkerThread {
     String title;
     private double downloadProgress;
     private AppManagedDownload appManagedDownload;
+    private boolean failedDownload = false;
 
     public DownloadJob(String s, String urlToDownload, String fileDownloadPath, String title) {
         super(s);
@@ -28,6 +29,15 @@ public class DownloadJob extends WorkerThread {
     public DownloadJob(String s) {
         super(s);
         this.appManagedDownload = new AppManagedDownload();
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
     }
 
     public double getDownloadProgress() {
@@ -63,16 +73,14 @@ public class DownloadJob extends WorkerThread {
     public void processCommand() {
         logger.info("Downloading ULR:" + this.urlToDownload + " to path:" + this.fileDownloadPath);
         appManagedDownload.run(this.urlToDownload, new File(fileDownloadPath), this.title);
-
+        if (appManagedDownload.isCantDownload()) {
+            failedDownload = true;
+        }
 
     }
-     public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
 
-        long factor = (long) Math.pow(10, places);
-        value = value * factor;
-        long tmp = Math.round(value);
-        return (double) tmp / factor;
+    public boolean isFailedDownload() {
+        return failedDownload;
     }
 
 }

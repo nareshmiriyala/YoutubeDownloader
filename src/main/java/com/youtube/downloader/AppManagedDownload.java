@@ -8,6 +8,7 @@ import com.dellnaresh.videodownload.vhs.YouTubeQParser;
 import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.DownloadInfo.Part;
 import com.github.axet.wget.info.DownloadInfo.Part.States;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
@@ -19,7 +20,13 @@ public class AppManagedDownload {
 
     VideoInfo info;
     long last;
+    org.slf4j.Logger logger = LoggerFactory.getLogger(AppManagedDownload.class);
     private double downloadStatus;
+    private boolean cantDownload = false;
+
+    public boolean isCantDownload() {
+        return cantDownload;
+    }
 
     public double getDownloadStatus() {
         return downloadStatus;
@@ -47,14 +54,16 @@ public class AppManagedDownload {
                     case EXTRACTING:
                     case EXTRACTING_DONE:
                     case DONE:
-                        downloadStatus = 100;
-                        System.out.println(s + i1.getState() + " " + i1.getVideoQuality());
+                        downloadStatus = 1.00;
+                        logger.debug(s + i1.getState() + " " + i1.getVideoQuality());
+                        logger.info("Successfully Downloaded");
                         break;
                     case RETRYING:
-                        System.out.println(s + i1.getState() + " " + i1.getDelay());
+                        logger.debug(s + i1.getState() + " " + i1.getDelay());
                         retryCount.incrementAndGet();
                         if (retryCount.get() > 10) {
-                            System.out.println("Can't Download the Video");
+                            cantDownload = true;
+                            logger.error("Can't Download the Video");
                             throw new RuntimeException("Cant Download the file");
                         }
                         break;
@@ -77,7 +86,7 @@ public class AppManagedDownload {
                             }
                             downloadStatus = (i2.getCount() / (float) i2.getLength());
                             setDownloadStatus(downloadStatus);
-                            System.out.println(String.format("%s %.2f %s", s + i1.getState(), downloadStatus, parts));
+                            logger.debug(String.format("%s %.2f %s", s + i1.getState(), downloadStatus, parts));
                         }
                         break;
                     default:
@@ -105,7 +114,7 @@ public class AppManagedDownload {
             // [OPTIONAL] call v.extract() only if you d like to get video title
             // before start download. or just skip it.
             v.extract(user, stop, notify);
-            System.out.println(info.getTitle());
+            logger.debug(info.getTitle());
 
             v.download(user, stop, notify);
         } catch (RuntimeException e) {
