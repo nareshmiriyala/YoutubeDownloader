@@ -39,6 +39,7 @@ public class DownloadJob extends WorkerThread {
             }
         });
         progressUpdate.start();
+        downloadProgress=round(downloadProgress, 3);
         return downloadProgress;
     }
 
@@ -64,6 +65,14 @@ public class DownloadJob extends WorkerThread {
         appManagedDownload.run(this.urlToDownload, new File(fileDownloadPath), this.title);
 
 
+    }
+     public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
     }
 
 }
