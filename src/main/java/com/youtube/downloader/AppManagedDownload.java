@@ -5,18 +5,20 @@ import com.dellnaresh.videodownload.info.VideoInfo;
 import com.dellnaresh.videodownload.info.VideoParser;
 import com.dellnaresh.videodownload.vhs.YouTubeQParser;
 import com.dellnaresh.wget.info.DownloadInfo;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AppManagedDownload {
 
     VideoInfo info;
     long last;
-    org.slf4j.Logger logger = LoggerFactory.getLogger(AppManagedDownload.class);
+    Logger logger = LoggerFactory.getLogger(AppManagedDownload.class);
     private double downloadStatus;
     private boolean cantDownload = false;
 
@@ -31,15 +33,17 @@ public class AppManagedDownload {
     public void setDownloadStatus(double downloadStatus) {
         this.downloadStatus = downloadStatus;
     }
-    public void run(String url, File path, String title) {
+    public void run(String url, File path, final String title) {
         try {
             AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger retryCount = new AtomicInteger(0);
             Runnable notify = new Runnable() {
 
                 @Override
                 public void run() {
                     VideoInfo i1 = info;
                     DownloadInfo i2 = i1.getDownloadInfo();
+                    String s = Thread.currentThread().getName() + ":: " + title + ":: ";
 
                     // notify app or save downloadVideo state
                     // you can extractDownloadInfo information from DownloadInfo info;
@@ -47,10 +51,19 @@ public class AppManagedDownload {
                         case EXTRACTING:
                         case EXTRACTING_DONE:
                         case DONE:
+                            downloadStatus = 1.00;
+                            logger.info(s + i1.getState() + " " + i1.getVideoQuality());
+                            logger.info("Successfully Downloaded");
                             logger.info("Download state {},Downloaded video quality {}", i1.getState(), i1.getVideoQuality());
                             break;
                         case RETRYING:
-                            logger.info("Retrying downloadVideo with delay {} having state {}", i1.getDelay(), i1.getState());
+                            logger.debug(s + i1.getState() + " " + i1.getDelay());
+                            retryCount.incrementAndGet();
+                            if (retryCount.get() > 10) {
+                                cantDownload = true;
+                                logger.error("Can't Download the Video");
+                                throw new RuntimeException("Cant Download the file");
+                            }
                             break;
                         case STOP:
                             logger.error("Stopping download");
@@ -77,8 +90,9 @@ public class AppManagedDownload {
                                         }
                                     }
                                 }
-                                logger.info(String.format("%s %.2f %s", i1.getState(),
-                                        i2.getCount() / (float) i2.getLength(), parts));
+                                downloadStatus = (i2.getCount() / (float) i2.getLength());
+                                setDownloadStatus(downloadStatus);
+                                logger.info(String.format("%s %.2f %s", s + i1.getState(), downloadStatus, parts));
                             }
                             break;
                         default:
