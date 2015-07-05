@@ -30,7 +30,7 @@ public class ClassTest {
             String urlString="file:C:/Users/NARESHM/Documents/NetBeansProjects/youtubeindianmovies/target/classes/com/youtube/downloader/testing/";
             URL url =new URL(urlString);
             urls = new URL[]{url};
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException ignored) {
         }
         ExampleClassLoader exampleClassLoader=new ExampleClassLoader(urls,ClassLoader.getSystemClassLoader());
         try {
