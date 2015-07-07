@@ -19,7 +19,7 @@ public class WorkerPool {
 
     }
 
-    public static WorkerPool getInstance() {
+    public static void getInstance() {
         if (workerPool == null) {
             synchronized (WorkerPool.class) {
                 if (workerPool == null) {
@@ -28,7 +28,6 @@ public class WorkerPool {
                 }
             }
         }
-        return workerPool;
     }
 
     private static void createWorkerPool() {

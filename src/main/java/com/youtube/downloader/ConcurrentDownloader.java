@@ -1,8 +1,6 @@
 package com.youtube.downloader;
 
-import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.SearchResultSnippet;
 import com.youtube.indianmovies.data.Search;
 import com.youtube.workerpool.WorkerPool;
 import org.slf4j.Logger;
@@ -12,7 +10,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,7 +21,7 @@ import java.util.regex.Pattern;
  */
 public class ConcurrentDownloader {
     private static final Logger logger= LoggerFactory.getLogger(ConcurrentDownloader.class);
-   private static String path = "C:\\Naresh Data\\Development Software\\Videos\\Java";
+   private static String path = "C:\\Naresh Data\\Development Software\\Videos\\Movies";
     private static AtomicInteger videosToDownload = new AtomicInteger(10);
   private static  String searchQuery = null;
 
@@ -46,10 +45,9 @@ public class ConcurrentDownloader {
         }
         while (true) {
             Search.setNumberOfVideosReturned(videosToDownload.get());
-            List<SearchResult> searchResults = youtubeSearch.find(searchQuery);
             List<SearchResult> finalSearchResultList=new ArrayList<>();
             findAndFilterVideos(finalSearchResultList,youtubeSearch);
-            logger.info("Final Videos being Downloaded size {}",finalSearchResultList.size());
+            logger.info("Final Videos being Downloaded size {}", finalSearchResultList.size());
 
             WorkerPool.getInstance();
             for(SearchResult searchResult:finalSearchResultList){
