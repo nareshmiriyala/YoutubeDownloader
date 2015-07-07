@@ -32,18 +32,28 @@ public class Search {
 
     private static long numberOfVideosReturned;
 
+    private YouTube.Search.List search;
+
     public static void setNumberOfVideosReturned(long numberOfVideosReturned) {
         Search.numberOfVideosReturned = numberOfVideosReturned;
     }
 
+    public YouTube.Search.List getSearch() {
+        return search;
+    }
+
+    public void setSearch(YouTube.Search.List search) {
+        this.search = search;
+    }
+
     /*
-     * Prints out all results in the Iterator. For each result, print the
-     * title, video ID, and thumbnail.
-     *
-     * @param iteratorSearchResults Iterator of SearchResults to print
-     *
-     * @param query Search query (String)
-     */
+         * Prints out all results in the Iterator. For each result, print the
+         * title, video ID, and thumbnail.
+         *
+         * @param iteratorSearchResults Iterator of SearchResults to print
+         *
+         * @param query Search query (String)
+         */
     private static void prettyPrint(Iterator<SearchResult> iteratorSearchResults, String query) {
 
         logger.debug("\n=============================================================");
@@ -101,46 +111,13 @@ public class Search {
       Define a global instance of a Youtube object, which will be used
       to make YouTube Data API requests.
      */
-            YouTube youtube = YoutubeBuilder.getInstance().getYouTube();
-
-//            // Define a list to store items in the list of uploaded videos.
-//            List<PlaylistItem> playlistItemList = new ArrayList<PlaylistItem>();
-//
-//            // Retrieve the playlist of the channel's uploaded videos.
-//            YouTube.PlaylistItems.List playlistItemRequest =
-//                    youtube.playlistItems().list("id,contentDetails,snippet");
-//            playlistItemRequest.setPlaylistId("PLE7E8B7F4856C9B19");
-//
-//            // playlistItemRequest.setFields(
-//            //     "items(contentDetails/videoId,snippet/title,snippet/publishedAt),nextPageToken,pageInfo");
-//            String nextToken = "";
-//
-//            // Call the API one or more times to retrieve all items in the
-//            // list. As long as the API response returns a nextPageToken,
-//            // there are still more items to retrieve.
-//            do {
-//                playlistItemRequest.setPageToken(nextToken);
-//                PlaylistItemListResponse playlistItemResult = playlistItemRequest.execute();
-//
-//                playlistItemList.addAll(playlistItemResult.getItems());
-//
-//                nextToken = playlistItemResult.getNextPageToken();
-//            } while (nextToken != null);
-//
-//            // Prints information about the results.
-//            prettyPrint(playlistItemList.size(), playlistItemList.iterator());
-            // Prompt the user to enter a query term.
-            //  String queryTerm = getInputQuery();
-
-            // Define the API request for retrieving search results.
-            YouTube.Search.List search = youtube.search().list("id,snippet");
-
             // Set your developer key from the {{ Google Cloud Console }} for
             // non-authenticated requests. See:
             // {{ https://cloud.google.com/console }}
             String apiKey = properties.getProperty("youtube.apikey");
             search.setKey(apiKey);
             search.setQ(searchQuery);
+
 
             // Restrict the search results to only include videos. See:
             // https://developers.google.com/youtube/v3/docs/search/list#type
@@ -166,5 +143,13 @@ public class Search {
             logger.error("Error is:" + t);
         }
         return searchResultList;
+    }
+
+    public YouTube.Search.List createSearchObject() throws IOException {
+        YouTube youtube = YoutubeBuilder.getInstance().getYouTube();
+
+        // Define the API request for retrieving search results.
+        search= youtube.search().list("id,snippet");
+        return search;
     }
 }

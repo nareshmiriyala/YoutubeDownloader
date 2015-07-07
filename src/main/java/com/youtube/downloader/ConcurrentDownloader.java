@@ -1,8 +1,12 @@
 package com.youtube.downloader;
 
+import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchResult;
 import com.youtube.indianmovies.data.Search;
 import com.youtube.workerpool.WorkerPool;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +14,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -45,6 +51,7 @@ public class ConcurrentDownloader {
         }
         while (true) {
             Search.setNumberOfVideosReturned(videosToDownload.get());
+            addSearchFilters(youtubeSearch);
             List<SearchResult> finalSearchResultList=new ArrayList<>();
             findAndFilterVideos(finalSearchResultList,youtubeSearch);
             logger.info("Final Videos being Downloaded size {}", finalSearchResultList.size());
@@ -66,7 +73,7 @@ public class ConcurrentDownloader {
             if (count.get() == 0) {
                 videosToDownload.addAndGet(inDownload);
             }
-            if (count.get() >= 1) {
+            if (count.get() >= 1 || finalSearchResultList.size()==0) {
                 break;
             }
         }
@@ -78,12 +85,37 @@ public class ConcurrentDownloader {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+      System.exit(0);
 
+    }
 
+    private static void addSearchFilters(Search youtubeSearch) throws IOException {
+        try {
+            YouTube.Search.List searchObject = youtubeSearch.createSearchObject();
+            // Format for input
+            DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+// Parsing the date
+            DateTime jodatime = dtf.parseDateTime(getCurrentTimeStamp());
+            String dateTime = dtf.print(jodatime.minusDays(10));
+            DateTime pdateTime1 = dtf.parseDateTime(dateTime);
+
+            searchObject.setPublishedAfter(new com.google.api.client.util.DateTime(pdateTime1.toDate()));
+            searchObject.setVideoDuration("any");//Allowed values: [any, long, medium, short]
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static String getCurrentTimeStamp() {
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+        Date now = new Date();
+        String strDate = sdfDate.format(now);
+        return strDate;
     }
 
     private static void findAndFilterVideos(List<SearchResult> finalSearchResultList,Search ySearch) {
         logger.info("Called findAndFilterVideos");
+
         List<SearchResult> searchResults = ySearch.find(searchQuery);
         logger.info("Search Results list size {}",searchResults.size());
         for(SearchResult searchResult:searchResults){
