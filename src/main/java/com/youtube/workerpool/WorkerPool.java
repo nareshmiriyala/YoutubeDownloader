@@ -8,9 +8,9 @@ import java.util.concurrent.*;
 public class WorkerPool {
     private static final Logger logger = LoggerFactory.getLogger(WorkerPool.class);
 
-    private static final int corePoolSize = 5;
-    private static final int maximumPoolSize = 10;
-    private static final long keepAliveTimeInMinutes = 60;
+    private static final int corePoolSize = 50;
+    private static final int maximumPoolSize = 100;
+    private static final long keepAliveTimeInMinutes = 160;
     private static ThreadPoolExecutor executorPool;
     private static MyMonitorThread monitor;
     private volatile static WorkerPool workerPool = null;
@@ -56,5 +56,10 @@ public class WorkerPool {
     public static void deployJob(AbstractJob job) {
         logger.debug("Deployed Job in the Pool:", job);
         executorPool.submit(job);
+
+    }
+    public static void removeJob(AbstractJob job){
+        logger.debug("Removing job {}",job.toString());
+        executorPool.remove(job);
     }
 }

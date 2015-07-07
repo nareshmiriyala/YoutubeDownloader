@@ -5,6 +5,7 @@ import com.dellnaresh.videodownload.info.VideoInfo;
 import com.dellnaresh.videodownload.info.VideoParser;
 import com.dellnaresh.videodownload.vhs.YouTubeQParser;
 import com.dellnaresh.wget.info.DownloadInfo;
+import com.youtube.workerpool.WorkerPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public class AppManagedDownload {
         try {
             AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger retryCount = new AtomicInteger(0);
-            Runnable notify = new Runnable() {
+            final Runnable notify = new Runnable() {
 
                 @Override
                 public void run() {
@@ -62,16 +63,13 @@ public class AppManagedDownload {
                             if (retryCount.get() > 10) {
                                 cantDownload = true;
                                 logger.error("Can't Download the Video");
-                                throw new RuntimeException("Cant Download the file");
                             }
                             break;
                         case STOP:
                             logger.error("Stopping download");
-                            System.exit(0);
                             break;
                         case ERROR:
                             logger.error("Error during download");
-                            System.exit(0);
                             break;
                         case DOWNLOADING:
                             long now = System.currentTimeMillis();
@@ -113,7 +111,7 @@ public class AppManagedDownload {
             // create simple youtube request
             //user = new YouTubeParser(info.getWebUrl());
             // downloadVideo maximum video quality
-            user = new YouTubeQParser(info.getWebUrl(), VideoInfo.VideoQuality.p360);
+            user = new YouTubeQParser(info.getWebUrl(), VideoInfo.VideoQuality.p720);
             // downloadVideo non webm only
             //user = new YouTubeMPGParser(info.getWebUrl(), VideoQuality.p480);
 
