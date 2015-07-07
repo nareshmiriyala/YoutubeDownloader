@@ -1,34 +1,33 @@
 package com.youtube.downloader;
 
+import com.dellnaresh.videodownload.VideoDownload;
+import com.dellnaresh.videodownload.info.VideoInfo;
+import com.dellnaresh.videodownload.info.VideoParser;
+import com.dellnaresh.videodownload.vhs.YouTubeQParser;
+import com.youtube.downloader.testing.DownloadThread;
 import com.youtube.workerpool.WorkerThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URL;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by nareshm on 8/03/2015.
  */
 public class DownloadJob extends WorkerThread {
     private static Logger logger = LoggerFactory.getLogger(DownloadJob.class);
-    String urlToDownload;
-    String fileDownloadPath;
-    String title;
+    private String urlToDownload;
+    private String fileDownloadPath;
+    private String title;
     private double downloadProgress;
-    private AppManagedDownload appManagedDownload;
+    private DownloadThread downloadThread;
     private boolean failedDownload = false;
-
-    public DownloadJob(String s, String urlToDownload, String fileDownloadPath, String title) {
-        super(s);
-        this.urlToDownload = urlToDownload;
-        this.fileDownloadPath = fileDownloadPath;
-        this.title = title;
-        this.appManagedDownload = new AppManagedDownload();
-    }
 
     public DownloadJob(String s) {
         super(s);
-        this.appManagedDownload = new AppManagedDownload();
+        downloadThread=new DownloadThread();
     }
 
     public static double round(double value, int places) {
@@ -44,12 +43,12 @@ public class DownloadJob extends WorkerThread {
         Thread progressUpdate = new Thread(new Runnable() {
             @Override
             public void run() {
-                downloadProgress = appManagedDownload.getDownloadStatus();
+                downloadProgress = downloadThread.getDownloadStatus();
 
             }
         });
         progressUpdate.start();
-        downloadProgress=round(downloadProgress, 3);
+        downloadProgress = round(downloadProgress, 3);
         return downloadProgress;
     }
 
@@ -72,11 +71,35 @@ public class DownloadJob extends WorkerThread {
     @Override
     public void processCommand() {
         logger.info("Downloading ULR:" + this.urlToDownload + " to path:" + this.fileDownloadPath);
-        appManagedDownload.run(this.urlToDownload, new File(fileDownloadPath), this.title);
-        if (appManagedDownload.isCantDownload()) {
+        startDownload(this.urlToDownload, new File(fileDownloadPath), this.title);
+        if (downloadThread.isFailedDownload()) {
             failedDownload = true;
         }
 
+    }
+
+    public void startDownload(String url, File path, String title) {
+        try {
+            VideoInfo info = new VideoInfo(new URL(url));
+            downloadThread.setInfo(info);
+            downloadThread.setTitle(title);
+            AtomicBoolean stop = downloadThread.getStop();
+
+            VideoParser user = new YouTubeQParser(info.getWebUrl(), VideoInfo.VideoQuality.p720);
+
+            VideoDownload v = new VideoDownload(info, path);
+
+            v.extractVideo(user, stop, downloadThread);
+
+            logger.info("Title: {} ", info.getTitle());
+            logger.info("Download URL: {} ", info.getDownloadInfo().getSource());
+
+            v.downloadVideo(user, stop, downloadThread);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean isFailedDownload() {
