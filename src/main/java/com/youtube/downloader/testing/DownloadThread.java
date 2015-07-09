@@ -92,7 +92,7 @@ public class DownloadThread implements Runnable {
     public void run() {
         VideoInfo i1 = info;
         DownloadInfo i2 = i1.getDownloadInfo();
-        String s = Thread.currentThread().getName() + ":: " + title + ":: ";
+        String s = "\n"+title + ":: ";
 
         // notify app or save downloadVideo state
         // you can extractDownloadInfo information from DownloadInfo info;
@@ -159,7 +159,7 @@ public class DownloadThread implements Runnable {
         String fileName = null;
         try {
             fileName = ConfigReader.getInstance().getPropertyValue("download.directory") + "\\" + ConfigReader.getInstance().getPropertyValue("config.filename");
-            FileUtils.writeStringToFile(new File(fileName), "VideoId:"+videoId+" Title:"+title, true);
+            FileUtils.writeStringToFile(new File(fileName), "VideoId:"+videoId+" Title:"+title+"\n",true);
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
