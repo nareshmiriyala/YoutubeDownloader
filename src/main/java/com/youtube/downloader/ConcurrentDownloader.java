@@ -116,7 +116,7 @@ public class ConcurrentDownloader {
     }
 
     private static void downloadVideo(SearchResult searchResult) {
-        String videoId=searchResult.getId().getVideoId();
+        String videoId = searchResult.getId().getVideoId();
         String url = createURL(videoId);
         String name = searchResult.getSnippet().getTitle();
         //don't download file if its in the directory
@@ -247,7 +247,8 @@ public class ConcurrentDownloader {
         }
         return Integer.parseInt(inputQuery);
     }
-    private static boolean isFileAlreadyDownloded(String videoId){
+
+    private static boolean isFileAlreadyDownloded(String videoId) {
         String fileName = null;
         try {
             fileName = ConfigReader.getInstance().getPropertyValue("download.directory") + "\\" + ConfigReader.getInstance().getPropertyValue("config.filename");
@@ -257,6 +258,7 @@ public class ConcurrentDownloader {
         }
         return false;
     }
+
     private static boolean isFileExists(String name, String path) {
         String replacedName = name.trim().replaceAll("[<>:\"/\\\\|?*\\x00-\\x1F]", "");
         String fileName = path.concat("\\").concat(replacedName + ".webm");
