@@ -71,11 +71,11 @@ public class Search {
 
             // Confirm that the result represents a video. Otherwise, the
             // item will not contain a video ID.
-            if (rId.getKind().equals("youtube#video")) {
-                System.out.print("** Video Id:" + rId.getVideoId() + " ");
-                System.out.print("** Title: " + singleVideo.getSnippet().getTitle());
-                System.out.println();
-            }
+//            if (rId.getKind().equals("youtube#video")) {
+//                System.out.print("** Video Id:" + rId.getVideoId() + " ");
+//                System.out.print("** Title: " + singleVideo.getSnippet().getTitle());
+//                System.out.println();
+//            }
         }
         logger.debug("\n-------------------------------------------------------------\n");
 

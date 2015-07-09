@@ -26,67 +26,141 @@ import java.util.regex.Pattern;
  * Created by nareshm on 8/03/2015.
  */
 public class ConcurrentDownloader {
-    private static final Logger logger= LoggerFactory.getLogger(ConcurrentDownloader.class);
-   private static String path = "C:\\Naresh Data\\Development Software\\Videos\\Movies";
+    private static final Logger logger = LoggerFactory.getLogger(ConcurrentDownloader.class);
+    private static String path = "C:\\Naresh Data\\Development Software\\Videos\\Movies";
     private static AtomicInteger videosToDownload = new AtomicInteger(10);
-  private static  String searchQuery = null;
+    private static String searchQuery = null;
+    private static int noOfDaysToSearch;
+
 
     public static void main(String[] args) throws IOException {
         Search youtubeSearch = new Search();
-        AtomicInteger count = new AtomicInteger(0);
         int inDownload = 0;
         try {
-            logger.info("Entered search Query {}",searchQuery);
             searchQuery = getInputQuery();
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
             inDownload = getInputVideosToDownload();
+            noOfDaysToSearch = getInputDaysToSearch();
             if (inDownload > 0) {
                 videosToDownload.set(inDownload);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        while (true) {
-            Search.setNumberOfVideosReturned(videosToDownload.get());
-            addSearchFilters(youtubeSearch);
-            List<SearchResult> finalSearchResultList=new ArrayList<>();
-            findAndFilterVideos(finalSearchResultList,youtubeSearch);
-            logger.info("Final Videos being Downloaded size {}", finalSearchResultList.size());
+        Search.setNumberOfVideosReturned(videosToDownload.get());
+        addSearchFilters(youtubeSearch);
+        List<SearchResult> finalSearchResultList = new ArrayList<>();
+        findAndFilterVideos(finalSearchResultList, youtubeSearch);
+        logger.info("Final Videos being Downloaded size {}", finalSearchResultList.size());
+        displaySearchResults(finalSearchResultList);
 
-            WorkerPool.getInstance();
-            for(SearchResult searchResult:finalSearchResultList){
-                    String url = createURL(searchResult.getId().getVideoId());
-                    String name = searchResult.getSnippet().getTitle();
-                    //don't download file if its in the directory
-                        final DownloadJob downloadJob = new DownloadJob("Download Job:" + url);
-                        downloadJob.setFileDownloadPath(path);
-                        downloadJob.setUrlToDownload(url);
-                        downloadJob.setTitle(name);
-                        count.incrementAndGet();
-                        System.out.println("Download progress 1:" + downloadJob.getDownloadProgress());
-                        WorkerPool.deployJob(downloadJob);
-            }
-           
-            if (count.get() == 0) {
-                videosToDownload.addAndGet(inDownload);
-            }
-            if (count.get() >= 1 || finalSearchResultList.size()==0) {
+        DOWNLOAD_METHOD download_method = getDownloadMethod();
+
+        switch (download_method) {
+            case ONE_WITH_VIDEOID:
+                String videoId = getVideoId();
+                if (isDownloadApproved()) {
+                    WorkerPool.getInstance();
+                    downloadVideo(videoId, finalSearchResultList);
+                }
                 break;
-            }
+            case ALL:
+                if (isDownloadApproved()) {
+                    WorkerPool.getInstance();
+                    for (SearchResult searchResult : finalSearchResultList) {
+                        downloadVideo(searchResult);
+                    }
+                }
+                break;
         }
-        if (0 == count.get()) {
-            System.out.println("=============No Videos Downloaded==========");
-        }
+
         try {
             WorkerPool.shutdown();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-      System.exit(0);
+        System.exit(0);
 
+    }
+
+    private static String getVideoId() throws IOException {
+        logger.info("\nEnter VideoId to download:");
+        return getInputString();
+    }
+
+    private static DOWNLOAD_METHOD getDownloadMethod() throws IOException {
+        logger.info("\nEnter Download option number\n Option 1:Download ALL \n Option Any Key: Specific VideoId");
+        String downloadMethod = getInputString();
+        if (downloadMethod.equalsIgnoreCase("1")) {
+            return DOWNLOAD_METHOD.ALL;
+        }
+        return DOWNLOAD_METHOD.ONE_WITH_VIDEOID;
+    }
+
+    private enum DOWNLOAD_METHOD {
+        ALL, ONE_WITH_VIDEOID
+    }
+
+    private static void downloadVideo(String videoId, List<SearchResult> finalSearchResults) {
+        for (SearchResult searchResult : finalSearchResults) {
+            if (videoId.equals(searchResult.getId().getVideoId())) {
+                downloadVideo(searchResult);
+                break;
+            }
+        }
+    }
+
+    private static void downloadVideo(SearchResult searchResult) {
+        String videoId=searchResult.getId().getVideoId();
+        String url = createURL(videoId);
+        String name = searchResult.getSnippet().getTitle();
+        //don't download file if its in the directory
+        final DownloadJob downloadJob = new DownloadJob("Download Job:" + url);
+        downloadJob.setFileDownloadPath(path);
+        downloadJob.setUrlToDownload(url);
+        downloadJob.setTitle(name);
+        downloadJob.setVideoId(videoId);
+        logger.info("Download progress {}", downloadJob.getDownloadProgress());
+        WorkerPool.deployJob(downloadJob);
+    }
+
+    private static boolean isDownloadApproved() throws IOException {
+
+        logger.info("\nApprove Download Videos: YES/NO");
+        String inputString = getInputString();
+        APPROVAL inputApproval = APPROVAL.valueOf(inputString);
+        switch (inputApproval) {
+            case YES:
+                return true;
+            case NO:
+                return false;
+        }
+        return false;
+    }
+
+    private enum APPROVAL {
+        YES, NO
+    }
+
+    private static void displaySearchResults(List<SearchResult> finalSearchResultList) {
+        for (SearchResult searchResult : finalSearchResultList) {
+            logger.info("VideoId: {}, Title: {}", searchResult.getId().getVideoId(), searchResult.getSnippet().getTitle());
+        }
+    }
+
+    private static int getInputDaysToSearch() throws IOException {
+        String inputQuery;
+
+        logger.info("\nPlease enter number of days to search: ");
+        inputQuery = getInputString();
+
+        if (inputQuery.length() < 1) {
+            inputQuery = "5";
+        }
+        return Integer.parseInt(inputQuery);
     }
 
     private static void addSearchFilters(Search youtubeSearch) throws IOException {
@@ -94,9 +168,8 @@ public class ConcurrentDownloader {
             YouTube.Search.List searchObject = youtubeSearch.createSearchObject();
             // Format for input
             DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-// Parsing the date
             DateTime jodatime = dtf.parseDateTime(getCurrentTimeStamp());
-            String dateTime = dtf.print(jodatime.minusDays(10));
+            String dateTime = dtf.print(jodatime.minusDays(noOfDaysToSearch));
             DateTime pdateTime1 = dtf.parseDateTime(dateTime);
 
             searchObject.setPublishedAfter(new com.google.api.client.util.DateTime(pdateTime1.toDate()));
@@ -106,6 +179,7 @@ public class ConcurrentDownloader {
             e.printStackTrace();
         }
     }
+
     public static String getCurrentTimeStamp() {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
         Date now = new Date();
@@ -113,30 +187,27 @@ public class ConcurrentDownloader {
         return strDate;
     }
 
-    private static void findAndFilterVideos(List<SearchResult> finalSearchResultList,Search ySearch) {
+    private static void findAndFilterVideos(List<SearchResult> finalSearchResultList, Search ySearch) {
         logger.info("Called findAndFilterVideos");
 
         List<SearchResult> searchResults = ySearch.find(searchQuery);
-        logger.info("Search Results list size {}",searchResults.size());
-        for(SearchResult searchResult:searchResults){
+        for (SearchResult searchResult : searchResults) {
             String title = searchResult.getSnippet().getTitle();
-            if(!isFileExists(title,path) && !findIfAddedToList(searchResult.getId().getVideoId(),finalSearchResultList) ){
-                logger.info("{} doesn't exists adding it to list",title);
-
+            if (!isFileExists(title, path) && !findIfAddedToList(searchResult.getId().getVideoId(), finalSearchResultList)) {
                 finalSearchResultList.add(searchResult);
             }
         }
-        if(finalSearchResultList.size()<=videosToDownload.get()){
-            logger.info("Size of finalSearchResultList equals videoToDownload");
+        if (finalSearchResultList.size() <= videosToDownload.get()) {
+            logger.debug("Size of finalSearchResultList equals videoToDownload");
             return;
         }
-        logger.info("Size of finalSearchResultList {} ",finalSearchResultList.size());
-        findAndFilterVideos(finalSearchResultList,ySearch);
+        logger.info("Size of finalSearchResultList {} ", finalSearchResultList.size());
+        findAndFilterVideos(finalSearchResultList, ySearch);
     }
 
     private static boolean findIfAddedToList(String videoId, List<SearchResult> finalSearchResultList) {
-        for(SearchResult searchResult:finalSearchResultList){
-            if(searchResult.getId().getVideoId().equals(videoId)){
+        for (SearchResult searchResult : finalSearchResultList) {
+            if (searchResult.getId().getVideoId().equals(videoId)) {
                 return true;
             }
         }
@@ -146,7 +217,7 @@ public class ConcurrentDownloader {
     private static String filterRecords(List<SearchResult> searchResults) throws IOException {
         String inputQuery;
 
-        System.out.print("Please enter Video Id to Download: ");
+        logger.info("Please enter Video Id to Download: ");
         inputQuery = getInputString();
         if (inputQuery.length() < 1) {
             // Use the string "YouTube Developers Live" as a default.
@@ -165,7 +236,7 @@ public class ConcurrentDownloader {
     private static int getInputVideosToDownload() throws IOException {
         String inputQuery;
 
-        System.out.print("Please enter Number of Videos to retrieve: ");
+        logger.info("Please enter Number of Videos to retrieve: ");
         inputQuery = getInputString();
 
         if (inputQuery.length() < 1) {
@@ -202,7 +273,7 @@ public class ConcurrentDownloader {
 
         String inputQuery;
 
-        System.out.print("Please enter a search term: ");
+        logger.info("Please enter a search term: ");
         inputQuery = getInputString();
 
         if (inputQuery.length() < 1) {

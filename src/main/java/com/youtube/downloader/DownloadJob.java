@@ -24,10 +24,19 @@ public class DownloadJob extends WorkerThread {
     private double downloadProgress;
     private DownloadThread downloadThread;
     private boolean failedDownload = false;
+    private String videoId;
 
     public DownloadJob(String s) {
         super(s);
         downloadThread=new DownloadThread();
+    }
+
+    public String getVideoId() {
+        return videoId;
+    }
+
+    public void setVideoId(String videoId) {
+        this.videoId = videoId;
     }
 
     public static double round(double value, int places) {
@@ -71,18 +80,19 @@ public class DownloadJob extends WorkerThread {
     @Override
     public void processCommand() {
         logger.info("Downloading ULR:" + this.urlToDownload + " to path:" + this.fileDownloadPath);
-        startDownload(this.urlToDownload, new File(fileDownloadPath), this.title);
+        startDownload(this.urlToDownload, new File(fileDownloadPath), this.title,this.videoId);
         if (downloadThread.isFailedDownload()) {
             failedDownload = true;
         }
 
     }
 
-    public void startDownload(String url, File path, String title) {
+    public void startDownload(String url, File path, String title,String videoId) {
         try {
             VideoInfo info = new VideoInfo(new URL(url));
             downloadThread.setInfo(info);
             downloadThread.setTitle(title);
+            downloadThread.setVideoId(videoId);
             AtomicBoolean stop = downloadThread.getStop();
 
             VideoParser user = new YouTubeQParser(info.getWebUrl(), VideoInfo.VideoQuality.p720);
