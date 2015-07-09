@@ -34,6 +34,14 @@ public class ConcurrentDownloader {
     private static String searchQuery = null;
     private static int noOfDaysToSearch;
 
+    private static String videoLength;
+
+    private enum VIDEO_LENGTH{
+
+        ANY,LONG,MEDIUM,SHORT;
+
+    }
+
 
     public static void main(String[] args) throws IOException {
         Search youtubeSearch = new Search();
@@ -46,6 +54,7 @@ public class ConcurrentDownloader {
         try {
             inDownload = getInputVideosToDownload();
             noOfDaysToSearch = getInputDaysToSearch();
+            videoLength=getVideoLength();
             if (inDownload > 0) {
                 videosToDownload.set(inDownload);
             }
@@ -86,6 +95,11 @@ public class ConcurrentDownloader {
         }
         System.exit(0);
 
+    }
+
+    private static String getVideoLength() throws IOException {
+        logger.info("Enter the length of video ,values can be any/long/medium/short");
+        return getInputString();
     }
 
     private static String getVideoId() throws IOException {
@@ -175,7 +189,7 @@ public class ConcurrentDownloader {
             DateTime pdateTime1 = dtf.parseDateTime(dateTime);
 
             searchObject.setPublishedAfter(new com.google.api.client.util.DateTime(pdateTime1.toDate()));
-            searchObject.setVideoDuration("any");//Allowed values: [any, long, medium, short]
+            searchObject.setVideoDuration(videoLength);//Allowed values: [any, long, medium, short]
 
         } catch (IOException e) {
             e.printStackTrace();

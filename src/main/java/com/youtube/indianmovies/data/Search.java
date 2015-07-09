@@ -69,13 +69,6 @@ public class Search {
             SearchResult singleVideo = iteratorSearchResults.next();
             ResourceId rId = singleVideo.getId();
 
-            // Confirm that the result represents a video. Otherwise, the
-            // item will not contain a video ID.
-//            if (rId.getKind().equals("youtube#video")) {
-//                System.out.print("** Video Id:" + rId.getVideoId() + " ");
-//                System.out.print("** Title: " + singleVideo.getSnippet().getTitle());
-//                System.out.println();
-//            }
         }
         logger.debug("\n-------------------------------------------------------------\n");
 
@@ -127,6 +120,7 @@ public class Search {
             // application uses.
             search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
             search.setMaxResults(numberOfVideosReturned);
+
 
             // Call the API and print results.
             SearchListResponse searchResponse = search.execute();
