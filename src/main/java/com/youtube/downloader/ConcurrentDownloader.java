@@ -2,8 +2,10 @@ package com.youtube.downloader;
 
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchResult;
+import com.youtube.downloader.config.ConfigReader;
 import com.youtube.indianmovies.data.Search;
 import com.youtube.workerpool.WorkerPool;
+import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -193,7 +195,7 @@ public class ConcurrentDownloader {
         List<SearchResult> searchResults = ySearch.find(searchQuery);
         for (SearchResult searchResult : searchResults) {
             String title = searchResult.getSnippet().getTitle();
-            if (!isFileExists(title, path) && !findIfAddedToList(searchResult.getId().getVideoId(), finalSearchResultList)) {
+            if (!isFileAlreadyDownloded(searchResult.getId().getVideoId()) && !findIfAddedToList(searchResult.getId().getVideoId(), finalSearchResultList)) {
                 finalSearchResultList.add(searchResult);
             }
         }
@@ -245,7 +247,16 @@ public class ConcurrentDownloader {
         }
         return Integer.parseInt(inputQuery);
     }
-
+    private static boolean isFileAlreadyDownloded(String videoId){
+        String fileName = null;
+        try {
+            fileName = ConfigReader.getInstance().getPropertyValue("download.directory") + "\\" + ConfigReader.getInstance().getPropertyValue("config.filename");
+            return FileUtils.readFileToString(new File(fileName)).contains(videoId);
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
     private static boolean isFileExists(String name, String path) {
         String replacedName = name.trim().replaceAll("[<>:\"/\\\\|?*\\x00-\\x1F]", "");
         String fileName = path.concat("\\").concat(replacedName + ".webm");
