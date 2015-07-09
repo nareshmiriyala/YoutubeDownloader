@@ -159,7 +159,7 @@ public class DownloadThread implements Runnable {
         String fileName = null;
         try {
             fileName = ConfigReader.getInstance().getPropertyValue("download.directory") + "\\" + ConfigReader.getInstance().getPropertyValue("config.filename");
-            FileUtils.writeStringToFile(new File(fileName), videoId, "VideoId:"+videoId+" Title:"+title);
+            FileUtils.writeStringToFile(new File(fileName), "VideoId:"+videoId+" Title:"+title, true);
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
