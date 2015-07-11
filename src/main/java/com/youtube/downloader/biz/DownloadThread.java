@@ -2,7 +2,7 @@ package com.youtube.downloader.biz;
 
 import com.dellnaresh.videodownload.info.VideoInfo;
 import com.dellnaresh.wget.info.DownloadInfo;
-import com.youtube.downloader.config.ConfigReader;
+import com.youtube.downloader.util.ConfigReader;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
