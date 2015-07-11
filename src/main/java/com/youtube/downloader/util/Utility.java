@@ -6,6 +6,8 @@ import com.youtube.downloader.biz.ConcurrentDownloader;
 import com.youtube.downloader.biz.DownloadJob;
 import com.youtube.indianmovies.data.Search;
 import com.youtube.workerpool.WorkerPool;
+import info.debatty.java.stringsimilarity.Damerau;
+import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -13,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +35,7 @@ public class Utility {
             YouTube.Search.List searchObject = youtubeSearch.createSearchObject();
             // Format for input
             DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+            logger.info("addSearchFilters noofDaysToSearch Value {} and inputNoOfDasyToSearch value {}",noOfDaysToSearch,inputNoOfDaysToSearch);
             String dateTime = dtf.print(dtf.parseDateTime(getCurrentTimeStamp()).minusDays(noOfDaysToSearch));
             searchObject.setPublishedAfter(new com.google.api.client.util.DateTime(dtf.parseDateTime(dateTime).toDate()));
             inputVideoLength=videoLength;
@@ -70,11 +74,14 @@ public class Utility {
         return null;
     }
 
-    public static boolean isFileAlreadyDownloaded(String videoId) {
+    public static boolean isFileAlreadyDownloaded(SearchResult searchResult) {
         String fileName = null;
         try {
             fileName = getPropertyValue("download.directory") + "\\" + ConfigReader.getInstance().getPropertyValue("config.filename");
-            return FileUtils.readFileToString(new File(fileName)).contains(videoId);
+            if(isFileExistsInFolder(searchResult)){
+                return true;
+            }
+            return FileUtils.readFileToString(new File(fileName)).contains(searchResult.getId().getVideoId());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,8 +93,9 @@ public class Utility {
         logger.info("Called findAndFilterVideos");
 
         List<SearchResult> searchResults = ySearch.find(searchQuery);
+        logger.info("Search result size {} and noofDaysToSearch is {}",searchResults.size(),inputNoOfDaysToSearch);
         for (SearchResult searchResult : searchResults) {
-            if (!isFileAlreadyDownloaded(searchResult.getId().getVideoId()) && !findIfAddedToList(searchResult.getId().getVideoId(), finalSearchResultList)) {
+            if (!isFileAlreadyDownloaded(searchResult) && !findIfAddedToList(searchResult.getId().getVideoId(), finalSearchResultList)) {
                 finalSearchResultList.add(searchResult);
             }
         }
@@ -148,5 +156,28 @@ public class Utility {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private static boolean isFileExistsInFolder(SearchResult searchResult){
+        File folder = new File(getPropertyValue("download.directory"));
+        String videoTitle=searchResult.getSnippet().getTitle();
+        JaroWinkler janWinkler=new JaroWinkler();
+        Damerau d = new Damerau();
+        File[] listOfFiles = folder.listFiles();
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                String name = listOfFiles[i].getName();
+                logger.info("file {} name is {}", i, name);
+                double similarity = janWinkler.similarity(videoTitle, name);
+                double distance = d.distance(videoTitle, name);
+                logger.info("JaroWinkler score of {} and {} is {}",name,videoTitle,similarity);
+                if(similarity>.85 ){
+                    return true;
+                }
+            }
+
+        }
+        return false;
     }
 }

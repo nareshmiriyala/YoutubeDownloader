@@ -10,23 +10,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by nareshm on 11/07/2015.
  */
 public class ScheduleJob implements Job {
     public static final String SEARCH_QUERY = "Ownage Pranks";
-    public static final int NUMBER_OF_VIDEOS_RETURNED = 1;
+    public static final int NUMBER_OF_VIDEOS_RETURNED = 5;
     private Logger logger = LoggerFactory.getLogger(ScheduleJob.class.getName());
-
+    private final static Map<String,String> downloadingMap=new ConcurrentHashMap<>();
+    private final static Map<Integer,String> videoLengthMap=new HashMap<>();
+    private static String videoLengthFilter="long";
+    public ScheduleJob(){
+        videoLengthMap.put(1,"any");
+        videoLengthMap.put(2,"long");
+        videoLengthMap.put(3,"medium");
+        videoLengthMap.put(4,"short");
+    }
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         logger.info("Job run started");
         try {
             startSearchAndDownload();
-            Utility.shutDownPool();
         } catch (IOException e) {
             logger.error("Exception during schedule download");
             e.printStackTrace();
@@ -36,19 +43,52 @@ public class ScheduleJob implements Job {
 
     private void startSearchAndDownload() throws IOException {
         Search search = new Search();
-        search.setNumberOfVideosReturned(NUMBER_OF_VIDEOS_RETURNED);
-        search.createSearchObject();
+        Search.setNumberOfVideosReturned(NUMBER_OF_VIDEOS_RETURNED);
         addFilters(search);
         List<SearchResult> finalSearchResultList = new ArrayList<>();
         Utility.findAndFilterVideos(finalSearchResultList, search, SEARCH_QUERY, NUMBER_OF_VIDEOS_RETURNED);
         Utility.displaySearchResults(finalSearchResultList);
-        if (finalSearchResultList.size() == 1) {
-            Utility.downloadVideo(finalSearchResultList.get(0));
+        int downloadCount=0;
+        for(SearchResult searchResult:finalSearchResultList){
+        if(downloadingMap.containsKey(searchResult.getId().getVideoId())|| downloadingMap.containsValue(searchResult.getSnippet().getTitle())) {
+            continue;
+        }
+            downloadCount++;
+            Utility.downloadVideo(searchResult);
+            downloadingMap.put(searchResult.getId().getVideoId(), searchResult.getSnippet().getTitle());
+        }
+        if(downloadCount==0){
+            int i = randInt(1, 4);
+            videoLengthFilter=videoLengthMap.get(i);
+            logger.info("Haven't downloaded any video");
         }
 
     }
+    /**
+     * Returns a pseudo-random number between min and max, inclusive.
+     * The difference between min and max can be at most
+     * <code>Integer.MAX_VALUE - 1</code>.
+     *
+     * @param min Minimum value
+     * @param max Maximum value.  Must be greater than min.
+     * @return Integer between min and max, inclusive.
+     * @see java.util.Random#nextInt(int)
+     */
+    public static int randInt(int min, int max) {
+
+        // NOTE: Usually this should be a field rather than a method
+        // variable so that it is not re-seeded every call.
+        Random rand = new Random();
+
+        // nextInt is normally exclusive of the top value,
+        // so add 1 to make it inclusive
+        int randomNum = rand.nextInt((max - min) + 1) + min;
+
+        return randomNum;
+    }
 
     private void addFilters(Search searchObject) throws IOException {
-        Utility.addSearchFilters(searchObject, 10, "long");
+        logger.info("Value of videoLengthFilter {}",videoLengthFilter);
+        Utility.addSearchFilters(searchObject, 10, videoLengthFilter);
     }
 }

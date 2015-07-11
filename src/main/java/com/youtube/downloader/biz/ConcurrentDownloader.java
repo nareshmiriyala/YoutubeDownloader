@@ -26,7 +26,7 @@ public class ConcurrentDownloader {
     public static void main(String[] args) throws IOException {
         Search youtubeSearch = new Search();
         getInputData();
-        Search.setNumberOfVideosReturned(NUMBER_OF_VIDEOS_RETURNED);
+
         Utility.addSearchFilters(youtubeSearch, noOfDaysToSearch, videoLength);
         List<SearchResult> finalSearchResultList = new ArrayList<>();
         Utility.findAndFilterVideos(finalSearchResultList, youtubeSearch, searchQuery, noOfVideosToDownload);
