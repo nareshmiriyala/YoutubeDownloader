@@ -1,6 +1,7 @@
 package com.youtube.downloader;
 
-import com.youtube.downloader.testing.DownloadThread;
+import com.youtube.downloader.biz.ConcurrentDownloader;
+import com.youtube.downloader.biz.DownloadThread;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

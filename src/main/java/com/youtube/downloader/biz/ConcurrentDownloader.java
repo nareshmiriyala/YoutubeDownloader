@@ -1,4 +1,4 @@
-package com.youtube.downloader;
+package com.youtube.downloader.biz;
 
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchResult;
@@ -45,7 +45,23 @@ public class ConcurrentDownloader {
 
     public static void main(String[] args) throws IOException {
         Search youtubeSearch = new Search();
-        int inDownload = 0;
+        getInputData();
+        Search.setNumberOfVideosReturned(videosToDownload.get());
+        addSearchFilters(youtubeSearch);
+        List<SearchResult> finalSearchResultList = new ArrayList<>();
+        findAndFilterVideos(finalSearchResultList, youtubeSearch);
+        logger.info("Final Videos being Downloaded size {}", finalSearchResultList.size());
+        displaySearchResults(finalSearchResultList);
+
+        DOWNLOAD_METHOD download_method = getDownloadMethod();
+
+        processDownload(finalSearchResultList, download_method);
+        System.exit(0);
+
+    }
+
+    private static void getInputData() {
+        int inDownload;
         try {
             searchQuery = getInputQuery();
         } catch (IOException e) {
@@ -61,15 +77,9 @@ public class ConcurrentDownloader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Search.setNumberOfVideosReturned(videosToDownload.get());
-        addSearchFilters(youtubeSearch);
-        List<SearchResult> finalSearchResultList = new ArrayList<>();
-        findAndFilterVideos(finalSearchResultList, youtubeSearch);
-        logger.info("Final Videos being Downloaded size {}", finalSearchResultList.size());
-        displaySearchResults(finalSearchResultList);
+    }
 
-        DOWNLOAD_METHOD download_method = getDownloadMethod();
-
+    private static void processDownload(List<SearchResult> finalSearchResultList, DOWNLOAD_METHOD download_method) throws IOException {
         switch (download_method) {
             case ONE_WITH_VIDEOID:
                 String videoId = getVideoId();
@@ -93,8 +103,6 @@ public class ConcurrentDownloader {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.exit(0);
-
     }
 
     private static String getVideoLength() throws IOException {

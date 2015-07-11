@@ -1,4 +1,4 @@
-package com.youtube.downloader;
+package com.youtube.downloader.biz;
 
 public class DirectDownload {
 

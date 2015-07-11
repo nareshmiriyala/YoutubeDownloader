@@ -1,10 +1,9 @@
-package com.youtube.downloader;
+package com.youtube.downloader.biz;
 
 import com.dellnaresh.videodownload.VideoDownload;
 import com.dellnaresh.videodownload.info.VideoInfo;
 import com.dellnaresh.videodownload.info.VideoParser;
 import com.dellnaresh.videodownload.vhs.YouTubeQParser;
-import com.youtube.downloader.testing.DownloadThread;
 import com.youtube.workerpool.WorkerThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
