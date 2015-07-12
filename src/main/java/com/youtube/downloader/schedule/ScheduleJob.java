@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by nareshm on 11/07/2015.
  */
 public class ScheduleJob implements Job {
-    public static final String SEARCH_QUERY = "Ownage Pranks";
+    public static final String SEARCH_QUERY = "Telugu Movies";
     public static final int NUMBER_OF_VIDEOS_RETURNED = 5;
     private Logger logger = LoggerFactory.getLogger(ScheduleJob.class.getName());
     private final static Map<String,String> downloadingMap=new ConcurrentHashMap<>();
