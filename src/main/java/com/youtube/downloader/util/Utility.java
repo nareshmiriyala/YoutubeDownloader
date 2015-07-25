@@ -1,5 +1,6 @@
 package com.youtube.downloader.util;
 
+import com.dellnaresh.util.Constants;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchResult;
 import com.youtube.downloader.biz.ConcurrentDownloader;
@@ -58,17 +59,20 @@ public class Utility {
         String inputQuery;
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
         inputQuery = bReader.readLine();
+        if(bReader!=null){
+            bReader.close();
+        }
         return inputQuery;
     }
 
     public static String createURL(String videoId) {
-        return "http://www.youtube.com/watch?v=".concat(videoId);
+        return Constants.YOUTUBE_URL_START.concat(videoId);
     }
 
     public static String getPropertyValue(String property) {
         try {
             return ConfigReader.getInstance().getPropertyValue(property);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;

@@ -81,18 +81,22 @@ public class Search {
      *
      * @param searchQuery
      */
-    public List<SearchResult> find(String searchQuery) {
+    public List<SearchResult> find(String searchQuery) throws IOException {
         // Read the developer key from the properties file.
         Properties properties = new Properties();
         List<SearchResult> searchResultList = null;
+        InputStream in=null;
         try {
-            InputStream in = Search.class.getResourceAsStream("/" + PROPERTIES_FILENAME);
+             in= Search.class.getResourceAsStream("/" + PROPERTIES_FILENAME);
             properties.load(in);
 
         } catch (IOException e) {
             logger.error("There was an error reading " + PROPERTIES_FILENAME + ": " + e.getCause()
                     + " : " + e.getMessage());
             System.exit(1);
+        }finally {
+            if(in!=null)
+                in.close();
         }
 
         try {
