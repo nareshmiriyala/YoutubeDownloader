@@ -12,6 +12,9 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 /**
@@ -20,7 +23,6 @@ import static org.junit.Assert.*;
 @RunWith(PowerMockRunner.class)
 public class UtilityTest {
 
-    private Utility utility;
 
     private Search mockSearch;
 
@@ -29,7 +31,6 @@ public class UtilityTest {
 
     @Before
     public void setUp() throws Exception {
-        utility= PowerMockito.spy(new Utility());
     }
 
     @After
@@ -40,7 +41,7 @@ public class UtilityTest {
     @Test
     public void testAddSearchFilters() throws Exception {
         mockSearch=new Search();
-        utility.addSearchFilters(mockSearch,10,"any");
+        Utility.addSearchFilters(mockSearch,10,"any");
     }
 
     @Test
@@ -50,7 +51,7 @@ public class UtilityTest {
 
     @Test
     public void testCreateURL() throws Exception {
-        String url = utility.createURL("1223");
+        String url = Utility.createURL("1223");
         assertEquals(Constants.YOUTUBE_URL_START.concat("1223"),url);
     }
 
@@ -65,11 +66,25 @@ public class UtilityTest {
         SearchResultSnippet mockSearchResultSnippet=new SearchResultSnippet();
         mockSearchResultSnippet.setTitle("Hello_Naresh");
         mockSearchResult.setSnippet(mockSearchResultSnippet);
-        utility.isFileAlreadyDownloaded(mockSearchResult);
+        Utility.isFileAlreadyDownloaded(mockSearchResult);
     }
 
     @Test
     public void testFindAndFilterVideos() throws Exception {
+        List<SearchResult> finalSearchResultList=new ArrayList<>();
+        Search search = new Search();
+        Search.setNumberOfVideosReturned(50);
+        String searchQuery="Telugu Movies";
+        Utility.addSearchFilters(search, 10, "long");
+        Utility.findAndFilterVideos(finalSearchResultList, search, searchQuery, 500);
+        Utility.displaySearchResults(finalSearchResultList);
+        List<SearchResult> searchResultArrayList=new ArrayList<>();
+        Search sea = new Search();
+        Search.setNumberOfVideosReturned(50);
+        String searchquery="Telugu Movies";
+        Utility.addSearchFilters(sea, 10, "long");
+        Utility.findAndFilterVideos(searchResultArrayList, sea, searchquery, 500);
+        Utility.displaySearchResults(searchResultArrayList);
 
     }
 

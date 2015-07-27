@@ -38,14 +38,6 @@ public class Search {
         Search.numberOfVideosReturned = numberOfVideosReturned;
     }
 
-    public YouTube.Search.List getSearch() {
-        return search;
-    }
-
-    public void setSearch(YouTube.Search.List search) {
-        this.search = search;
-    }
-
     /*
          * Prints out all results in the Iterator. For each result, print the
          * title, video ID, and thumbnail.
@@ -65,10 +57,8 @@ public class Search {
             logger.warn(" There aren't any results for your query.");
         }
         while (iteratorSearchResults.hasNext()) {
-
             SearchResult singleVideo = iteratorSearchResults.next();
             ResourceId rId = singleVideo.getId();
-
         }
         logger.debug("\n-------------------------------------------------------------\n");
 
@@ -85,32 +75,21 @@ public class Search {
         // Read the developer key from the properties file.
         Properties properties = new Properties();
         List<SearchResult> searchResultList = null;
-        InputStream in=null;
+        InputStream in = null;
         try {
-             in= Search.class.getResourceAsStream("/" + PROPERTIES_FILENAME);
+            in = Search.class.getResourceAsStream("/" + PROPERTIES_FILENAME);
             properties.load(in);
 
         } catch (IOException e) {
             logger.error("There was an error reading " + PROPERTIES_FILENAME + ": " + e.getCause()
                     + " : " + e.getMessage());
             System.exit(1);
-        }finally {
-            if(in!=null)
+        } finally {
+            if (in != null)
                 in.close();
         }
 
         try {
-            // This object is used to make YouTube Data API requests. The last
-            // argument is required, but since we don't need anything
-            // initialized when the HttpRequest is initialized, we override
-            // the interface and provide a no-op function.
-             /*
-      Define a global instance of a Youtube object, which will be used
-      to make YouTube Data API requests.
-     */
-            // Set your developer key from the {{ Google Cloud Console }} for
-            // non-authenticated requests. See:
-            // {{ https://cloud.google.com/console }}
             String apiKey = properties.getProperty("youtube.apikey");
             search.setKey(apiKey);
             search.setQ(searchQuery);
@@ -124,8 +103,6 @@ public class Search {
             // application uses.
             search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
             search.setMaxResults(numberOfVideosReturned);
-
-
             // Call the API and print results.
             SearchListResponse searchResponse = search.execute();
             searchResultList = searchResponse.getItems();
@@ -145,9 +122,8 @@ public class Search {
 
     public YouTube.Search.List createSearchObject() throws IOException {
         YouTube youtube = YoutubeBuilder.getInstance().getYouTube();
-
         // Define the API request for retrieving search results.
-        search= youtube.search().list("id,snippet");
+        search = youtube.search().list("id,snippet");
         return search;
     }
 }

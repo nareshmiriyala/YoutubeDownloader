@@ -13,11 +13,14 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -27,20 +30,25 @@ import java.util.List;
 public class Utility {
     private static final Logger logger = LoggerFactory.getLogger(Utility.class.getName());
     private static String path = Utility.getPropertyValue("download.directory");
-    private static String inputVideoLength="any";
+    private static String inputVideoLength = "any";
     private static int inputNoOfDaysToSearch;
+    private static int searchQueryRetryCount =0;
+    private static int tempSearchSize=0;
 
+    public static void setSearchQueryRetryCount(int searchQueryRetryCount) {
+        Utility.searchQueryRetryCount = searchQueryRetryCount;
+    }
 
     public static void addSearchFilters(Search youtubeSearch, int noOfDaysToSearch, String videoLength) throws IOException {
         try {
             YouTube.Search.List searchObject = youtubeSearch.createSearchObject();
             // Format for input
             DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-            logger.info("addSearchFilters noofDaysToSearch Value {} and inputNoOfDasyToSearch value {}",noOfDaysToSearch,inputNoOfDaysToSearch);
+            logger.info("addSearchFilters noofDaysToSearch Value {} and inputNoOfDasyToSearch value {}", noOfDaysToSearch, inputNoOfDaysToSearch);
             String dateTime = dtf.print(dtf.parseDateTime(getCurrentTimeStamp()).minusDays(noOfDaysToSearch));
             searchObject.setPublishedAfter(new com.google.api.client.util.DateTime(dtf.parseDateTime(dateTime).toDate()));
-            inputVideoLength=videoLength;
-            inputNoOfDaysToSearch=noOfDaysToSearch;
+            inputVideoLength = videoLength;
+            inputNoOfDaysToSearch = noOfDaysToSearch;
             searchObject.setVideoDuration(videoLength);//Allowed values: [any, long, medium, short]
 
         } catch (IOException e) {
@@ -59,7 +67,7 @@ public class Utility {
         String inputQuery;
         BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
         inputQuery = bReader.readLine();
-        if(bReader!=null){
+        if (bReader != null) {
             bReader.close();
         }
         return inputQuery;
@@ -82,10 +90,15 @@ public class Utility {
         String fileName = null;
         try {
             fileName = getPropertyValue("download.directory") + "\\" + ConfigReader.getInstance().getPropertyValue("config.filename");
-            if(isFileExistsInFolder(searchResult)){
+            if (isFileExistsInFolder(searchResult)) {
                 return true;
             }
-            return FileUtils.readFileToString(new File(fileName)).contains(searchResult.getId().getVideoId());
+            File downloadHistoryFile = new File(fileName);
+            if(!downloadHistoryFile.exists()){
+                downloadHistoryFile.createNewFile();
+            }
+
+            return FileUtils.readFileToString(downloadHistoryFile).contains(searchResult.getId().getVideoId());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -93,24 +106,32 @@ public class Utility {
     }
 
     public static void findAndFilterVideos(List<SearchResult> finalSearchResultList, Search ySearch, String searchQuery, int videosToDownload) throws IOException {
-
-        logger.info("Called findAndFilterVideos");
+        logger.debug("Called findAndFilterVideos  searchQuery {} and no of videos to download {}", searchQuery, videosToDownload);
 
         List<SearchResult> searchResults = ySearch.find(searchQuery);
-        logger.info("Search result size {} and noofDaysToSearch is {}",searchResults.size(),inputNoOfDaysToSearch);
+        logger.debug("Search result size {} and noofDaysToSearch is {}", searchResults.size(), inputNoOfDaysToSearch);
         for (SearchResult searchResult : searchResults) {
             if (!isFileAlreadyDownloaded(searchResult) && !findIfAddedToList(searchResult.getId().getVideoId(), finalSearchResultList)) {
                 finalSearchResultList.add(searchResult);
             }
         }
+        if(tempSearchSize==finalSearchResultList.size()){
+            searchQueryRetryCount++;
+        }
+        if(searchQueryRetryCount >=10){
+            logger.debug("Stop searching search retry count {} reached",searchQueryRetryCount);
+            return;
+        }
+        tempSearchSize=finalSearchResultList.size();
+
         if (finalSearchResultList.size() >= videosToDownload) {
 
             logger.debug("Size of finalSearchResultList equals videoToDownload");
             return;
         }
         //increment search days by 10
-        inputNoOfDaysToSearch=inputNoOfDaysToSearch+10;
-        addSearchFilters(ySearch,inputNoOfDaysToSearch,inputVideoLength);
+        inputNoOfDaysToSearch = inputNoOfDaysToSearch + 10;
+        addSearchFilters(ySearch, inputNoOfDaysToSearch, inputVideoLength);
         logger.info("Size of finalSearchResultList {} ", finalSearchResultList.size());
         findAndFilterVideos(finalSearchResultList, ySearch, searchQuery, videosToDownload);
     }
@@ -144,13 +165,20 @@ public class Utility {
         downloadJob.setUrlToDownload(url);
         downloadJob.setTitle(name);
         downloadJob.setVideoId(videoId);
-        logger.info("Download progress {}", downloadJob.getDownloadProgress());
+        logger.debug("Download progress {}", downloadJob.getDownloadProgress());
         WorkerPool.deployJob(downloadJob);
     }
 
     public static void displaySearchResults(List<SearchResult> finalSearchResultList) {
+        Collections.sort(finalSearchResultList, new Comparator<SearchResult>() {
+            @Override
+            public int compare(SearchResult o1, SearchResult o2) {
+                return o1.getSnippet().getTitle().compareTo(o2.getSnippet().getTitle());
+            }
+        });
+        int count=0;
         for (SearchResult searchResult : finalSearchResultList) {
-            logger.info("VideoId: {}, Title: {}", searchResult.getId().getVideoId(), searchResult.getSnippet().getTitle());
+            logger.info("No {} VideoId: {}, Title: {}", ++count,searchResult.getId().getVideoId(), searchResult.getSnippet().getTitle());
         }
     }
 
@@ -162,20 +190,20 @@ public class Utility {
         }
     }
 
-    private static boolean isFileExistsInFolder(SearchResult searchResult){
+    private static boolean isFileExistsInFolder(SearchResult searchResult) {
         File folder = new File(getPropertyValue("download.directory"));
-        String videoTitle=searchResult.getSnippet().getTitle();
-        JaroWinkler janWinkler=new JaroWinkler();
+        String videoTitle = searchResult.getSnippet().getTitle();
+        JaroWinkler janWinkler = new JaroWinkler();
         Damerau d = new Damerau();
         File[] listOfFiles = folder.listFiles();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
                 String name = listOfFiles[i].getName();
-                logger.info("file {} name is {}", i, name);
+                logger.debug("file {} name is {}", i, name);
                 double similarity = janWinkler.similarity(videoTitle, name);
-                logger.info("JaroWinkler score of {} and {} is {}",name,videoTitle,similarity);
-                if(similarity>.85 ){
+                logger.debug("JaroWinkler score of {} and {} is {}", name, videoTitle, similarity);
+                if (similarity > .85) {
                     return true;
                 }
             }
