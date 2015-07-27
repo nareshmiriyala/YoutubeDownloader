@@ -15,8 +15,8 @@ public class JobScheduler {
         try {
             JobDetail jobDetail = JobBuilder.newJob(ScheduleJob.class).withIdentity("DownloadJob").build();
             //specify the running period of job
-//            Trigger trigger = TriggerFactory.createTriggerIntervalSeconds(jobDetail, 40);
-            Trigger trigger = TriggerFactory.createTriggerIntervalHours(jobDetail, 1);
+            Trigger trigger = TriggerFactory.createTriggerIntervalSeconds(jobDetail, 40);
+//            Trigger trigger = TriggerFactory.createTriggerIntervalHours(jobDetail, 1);
             SchedulerFactory schedulerFactory = new StdSchedulerFactory();
             Scheduler sch = schedulerFactory.getScheduler();
             logger.info("Starting the Job Scheduler");

@@ -3,7 +3,6 @@ package com.youtube.downloader.util;
 import com.dellnaresh.util.Constants;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchResult;
-import com.youtube.downloader.biz.ConcurrentDownloader;
 import com.youtube.downloader.biz.DownloadJob;
 import com.youtube.indianmovies.data.Search;
 import com.youtube.workerpool.WorkerPool;
@@ -14,9 +13,10 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.nio.file.Files;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -174,7 +174,6 @@ public class Utility {
                 String name = listOfFiles[i].getName();
                 logger.info("file {} name is {}", i, name);
                 double similarity = janWinkler.similarity(videoTitle, name);
-                double distance = d.distance(videoTitle, name);
                 logger.info("JaroWinkler score of {} and {} is {}",name,videoTitle,similarity);
                 if(similarity>.85 ){
                     return true;
