@@ -30,16 +30,16 @@ import java.util.List;
 public class Utility {
     private static final Logger logger = LoggerFactory.getLogger(Utility.class.getName());
     private static String path = Utility.getPropertyValue("download.directory");
-    private static String inputVideoLength = "any";
+    private static Constants.VIDEO_LENGTH inputVideoLength = Constants.VIDEO_LENGTH.ANY;
     private static int inputNoOfDaysToSearch;
-    private static int searchQueryRetryCount =0;
-    private static int tempSearchSize=0;
+    private static int searchQueryRetryCount = 0;
+    private static int tempSearchSize = 0;
 
     public static void setSearchQueryRetryCount(int searchQueryRetryCount) {
         Utility.searchQueryRetryCount = searchQueryRetryCount;
     }
 
-    public static void addSearchFilters(Search youtubeSearch, int noOfDaysToSearch, String videoLength) throws IOException {
+    public static void addSearchFilters(Search youtubeSearch, int noOfDaysToSearch, Constants.VIDEO_LENGTH videoLength) throws IOException {
         try {
             YouTube.Search.List searchObject = youtubeSearch.createSearchObject();
             // Format for input
@@ -49,7 +49,7 @@ public class Utility {
             searchObject.setPublishedAfter(new com.google.api.client.util.DateTime(dtf.parseDateTime(dateTime).toDate()));
             inputVideoLength = videoLength;
             inputNoOfDaysToSearch = noOfDaysToSearch;
-            searchObject.setVideoDuration(videoLength);//Allowed values: [any, long, medium, short]
+            searchObject.setVideoDuration(videoLength.getLength());//Allowed values: [any, long, medium, short]
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -94,7 +94,7 @@ public class Utility {
                 return true;
             }
             File downloadHistoryFile = new File(fileName);
-            if(!downloadHistoryFile.exists()){
+            if (!downloadHistoryFile.exists()) {
                 downloadHistoryFile.createNewFile();
             }
 
@@ -115,14 +115,14 @@ public class Utility {
                 finalSearchResultList.add(searchResult);
             }
         }
-        if(tempSearchSize==finalSearchResultList.size()){
+        if (tempSearchSize == finalSearchResultList.size()) {
             searchQueryRetryCount++;
         }
-        if(searchQueryRetryCount >=10){
-            logger.debug("Stop searching search retry count {} reached",searchQueryRetryCount);
+        if (searchQueryRetryCount >= 10) {
+            logger.debug("Stop searching search retry count {} reached", searchQueryRetryCount);
             return;
         }
-        tempSearchSize=finalSearchResultList.size();
+        tempSearchSize = finalSearchResultList.size();
 
         if (finalSearchResultList.size() >= videosToDownload) {
 
@@ -176,9 +176,9 @@ public class Utility {
                 return o1.getSnippet().getTitle().compareTo(o2.getSnippet().getTitle());
             }
         });
-        int count=0;
+        int count = 0;
         for (SearchResult searchResult : finalSearchResultList) {
-            logger.info("No {} VideoId: {}, Title: {}", ++count,searchResult.getId().getVideoId(), searchResult.getSnippet().getTitle());
+            logger.info("No {} VideoId: {}, Title: {}", ++count, searchResult.getId().getVideoId(), searchResult.getSnippet().getTitle());
         }
     }
 
@@ -212,3 +212,4 @@ public class Utility {
         return false;
     }
 }
+

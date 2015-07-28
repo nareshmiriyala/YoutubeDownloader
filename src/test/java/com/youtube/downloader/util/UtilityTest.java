@@ -41,7 +41,7 @@ public class UtilityTest {
     @Test
     public void testAddSearchFilters() throws Exception {
         mockSearch=new Search();
-        Utility.addSearchFilters(mockSearch,10,"any");
+        Utility.addSearchFilters(mockSearch,10, Constants.VIDEO_LENGTH.ANY);
     }
 
     @Test
@@ -75,17 +75,9 @@ public class UtilityTest {
         Search search = new Search();
         Search.setNumberOfVideosReturned(50);
         String searchQuery="Telugu Movies";
-        Utility.addSearchFilters(search, 10, "long");
+        Utility.addSearchFilters(search, 10, Constants.VIDEO_LENGTH.LONG);
         Utility.findAndFilterVideos(finalSearchResultList, search, searchQuery, 500);
         Utility.displaySearchResults(finalSearchResultList);
-        List<SearchResult> searchResultArrayList=new ArrayList<>();
-        Search sea = new Search();
-        Search.setNumberOfVideosReturned(50);
-        String searchquery="Telugu Movies";
-        Utility.addSearchFilters(sea, 10, "long");
-        Utility.findAndFilterVideos(searchResultArrayList, sea, searchquery, 500);
-        Utility.displaySearchResults(searchResultArrayList);
-
     }
 
     @Test

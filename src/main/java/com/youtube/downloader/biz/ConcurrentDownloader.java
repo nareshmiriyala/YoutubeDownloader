@@ -1,5 +1,6 @@
 package com.youtube.downloader.biz;
 
+import com.dellnaresh.util.Constants;
 import com.google.api.services.youtube.model.SearchResult;
 import com.youtube.downloader.util.Utility;
 import com.youtube.indianmovies.data.Search;
@@ -21,7 +22,7 @@ public class ConcurrentDownloader {
     private static int noOfDaysToSearch;
     private static int noOfVideosToDownload;
 
-    private static String videoLength;
+    private static Constants.VIDEO_LENGTH videoLength;
 
     public static void main(String[] args) throws IOException {
         Search youtubeSearch = new Search();
@@ -69,9 +70,9 @@ public class ConcurrentDownloader {
         Utility.shutDownPool();
     }
 
-    private static String getVideoLength() throws IOException {
+    private static Constants.VIDEO_LENGTH getVideoLength() throws IOException {
         logger.info("Enter the length of video ,values can be any/long/medium/short");
-        return Utility.getInputString();
+        return Constants.VIDEO_LENGTH.valueOf(Utility.getInputString());
     }
 
     private static String getVideoId() throws IOException {
