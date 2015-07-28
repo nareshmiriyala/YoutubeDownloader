@@ -152,19 +152,14 @@ public class Utility {
         }
     }
     public static Map<String,String> removeDuplicateVideos(Map<String,String> videoMap){
-        Set<String> valueSet=new TreeSet<String>(videoMap.values());
+        Set<String> valueSet=new TreeSet<>(videoMap.values());
         Iterator<String> iterator=valueSet.iterator();
-        Map<String,String> uniqueMap=new HashMap<String,String>();
+        Map<String,String> uniqueMap=new HashMap<>();
         while (iterator.hasNext()) {
             String value = iterator.next();
-            for(Map.Entry<String,String> e:videoMap.entrySet())
-            {
-                if(value.equals(e.getValue()) && !uniqueMap.containsValue(value))
-                {
-                    uniqueMap.put(e.getKey(), value);
-                }
-
-            }
+            videoMap.entrySet().stream().filter(e -> value.equals(e.getValue()) && !uniqueMap.containsValue(value)).forEach(e -> {
+                uniqueMap.put(e.getKey(), value);
+            });
 
         }
         return uniqueMap;
