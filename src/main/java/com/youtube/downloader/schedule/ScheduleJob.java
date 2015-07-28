@@ -1,5 +1,6 @@
 package com.youtube.downloader.schedule;
 
+import com.dellnaresh.util.Constants;
 import com.google.api.services.youtube.model.SearchResult;
 import com.youtube.downloader.util.Utility;
 import com.youtube.indianmovies.data.Search;
@@ -21,13 +22,13 @@ public class ScheduleJob implements Job {
     public static final int NUMBER_OF_VIDEOS_RETURNED = 5;
     private Logger logger = LoggerFactory.getLogger(ScheduleJob.class.getName());
     private final static Map<String,String> downloadingMap=new ConcurrentHashMap<>();
-    private final static Map<Integer,String> videoLengthMap=new HashMap<>();
-    private static String videoLengthFilter="long";
+    private final static Map<Integer,Constants.VIDEO_LENGTH> videoLengthMap=new HashMap<>();
+    private static Constants.VIDEO_LENGTH videoLengthFilter= Constants.VIDEO_LENGTH.LONG;
     public ScheduleJob(){
-        videoLengthMap.put(1,"any");
-        videoLengthMap.put(2,"long");
-        videoLengthMap.put(3,"medium");
-        videoLengthMap.put(4,"short");
+        videoLengthMap.put(1, Constants.VIDEO_LENGTH.ANY);
+        videoLengthMap.put(2, Constants.VIDEO_LENGTH.LONG);
+        videoLengthMap.put(3, Constants.VIDEO_LENGTH.MEDIUM);
+        videoLengthMap.put(4, Constants.VIDEO_LENGTH.SHORT);
     }
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -88,7 +89,7 @@ public class ScheduleJob implements Job {
     }
 
     private void addFilters(Search searchObject) throws IOException {
-        logger.info("Value of videoLengthFilter {}",videoLengthFilter);
+        logger.debug("Value of videoLengthFilter {}",videoLengthFilter);
         Utility.addSearchFilters(searchObject, 10, videoLengthFilter);
     }
 }
