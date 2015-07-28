@@ -31,7 +31,7 @@ public class ConcurrentDownloader {
         Utility.addSearchFilters(youtubeSearch, noOfDaysToSearch, videoLength);
         List<SearchResult> finalSearchResultList = new ArrayList<>();
         Utility.findAndFilterVideos(finalSearchResultList, youtubeSearch, searchQuery, noOfVideosToDownload);
-        logger.info("Final Videos being Downloaded size {}", finalSearchResultList.size());
+        logger.debug("Final Videos being Downloaded size {}", finalSearchResultList.size());
         Utility.displaySearchResults(finalSearchResultList);
         DOWNLOAD_METHOD download_method = getDownloadMethod();
         processDownload(finalSearchResultList, download_method);

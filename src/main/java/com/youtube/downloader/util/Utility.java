@@ -19,10 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Created by nareshm on 11/07/2015.
@@ -44,7 +42,7 @@ public class Utility {
             YouTube.Search.List searchObject = youtubeSearch.createSearchObject();
             // Format for input
             DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-            logger.info("addSearchFilters noofDaysToSearch Value {} and inputNoOfDasyToSearch value {}", noOfDaysToSearch, inputNoOfDaysToSearch);
+            logger.debug("noOfDaysToSearch Value {} and inputNoOfDasyToSearch value {}", noOfDaysToSearch, inputNoOfDaysToSearch);
             String dateTime = dtf.print(dtf.parseDateTime(getCurrentTimeStamp()).minusDays(noOfDaysToSearch));
             searchObject.setPublishedAfter(new com.google.api.client.util.DateTime(dtf.parseDateTime(dateTime).toDate()));
             inputVideoLength = videoLength;
@@ -119,7 +117,7 @@ public class Utility {
             searchQueryRetryCount++;
         }
         if (searchQueryRetryCount >= 10) {
-            logger.debug("Stop searching search retry count {} reached", searchQueryRetryCount);
+            logger.info("Stop searching search retry count {} reached", searchQueryRetryCount);
             return;
         }
         tempSearchSize = finalSearchResultList.size();
@@ -153,6 +151,32 @@ public class Utility {
             }
         }
     }
+    public static Map<String,String> removeDuplicateVideos(Map<String,String> videoMap){
+        Set<String> valueSet=new TreeSet<String>(videoMap.values());
+        Iterator<String> iterator=valueSet.iterator();
+        Map<String,String> uniqueMap=new HashMap<String,String>();
+        while (iterator.hasNext()) {
+            String value = iterator.next();
+            for(Map.Entry<String,String> e:videoMap.entrySet())
+            {
+                if(value.equals(e.getValue()) && !uniqueMap.containsValue(value))
+                {
+                    uniqueMap.put(e.getKey(), value);
+                }
+
+            }
+
+        }
+        return uniqueMap;
+    }
+
+    public static Map<String,String> getVideosMap(List<SearchResult> searchResults) {
+        Map<String,String> originalVideo=new HashMap<>();
+        for(SearchResult result:searchResults){
+            originalVideo.put(result.getId().getVideoId(),result.getSnippet().getTitle());
+        }
+        return originalVideo;
+    }
 
     public static void downloadVideo(SearchResult searchResult) {
         WorkerPool.getInstance();
@@ -181,7 +205,24 @@ public class Utility {
             logger.info("No {} VideoId: {}, Title: {}", ++count, searchResult.getId().getVideoId(), searchResult.getSnippet().getTitle());
         }
     }
+    public static void displaySearchResults(Map<String,String> videoMap) {
+        Map<String, String> sortedMap = sortByValue(videoMap);
+        int count = 0;
+        for (Map.Entry<String,String> entry : sortedMap.entrySet()) {
+            logger.info("No {} VideoId: {}, Title: {}", ++count, entry.getKey(), entry.getValue());
+        }
+    }
+    public static <K, V extends Comparable<? super V>> Map<K, V>
+    sortByValue( Map<K, V> map )
+    {
+        Map<K,V> result = new LinkedHashMap<>();
+        Stream<Map.Entry<K,V>> st = map.entrySet().stream();
 
+        st.sorted(Comparator.comparing(e -> e.getValue()))
+                .forEach(e ->result.put(e.getKey(),e.getValue()));
+
+        return result;
+    }
     public static void shutDownPool() {
         try {
             WorkerPool.shutdown();
@@ -193,23 +234,25 @@ public class Utility {
     private static boolean isFileExistsInFolder(SearchResult searchResult) {
         File folder = new File(getPropertyValue("download.directory"));
         String videoTitle = searchResult.getSnippet().getTitle();
-        JaroWinkler janWinkler = new JaroWinkler();
         Damerau d = new Damerau();
         File[] listOfFiles = folder.listFiles();
-
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
                 String name = listOfFiles[i].getName();
                 logger.debug("file {} name is {}", i, name);
-                double similarity = janWinkler.similarity(videoTitle, name);
-                logger.debug("JaroWinkler score of {} and {} is {}", name, videoTitle, similarity);
-                if (similarity > .85) {
+                if (getJaroWinkerSimilarity(videoTitle,name) > .85) {
                     return true;
                 }
             }
 
         }
         return false;
+    }
+    private static double getJaroWinkerSimilarity(String video1,String video2){
+        JaroWinkler janWinkler = new JaroWinkler();
+        double similarity = janWinkler.similarity(video1, video2);
+        logger.debug("JaroWinkler score of {} and {} is {}", video1, video2,similarity );
+        return similarity ;
     }
 }
 
