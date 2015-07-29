@@ -76,7 +76,7 @@ public class UtilityTest {
         Search.setNumberOfVideosReturned(50);
         String searchQuery="Telugu Movies";
         Utility.setSearchQueryRetryCount(0);
-        Utility.addSearchFilters(search, 10, Constants.VIDEO_LENGTH.LONG);
+        Utility.addSearchFilters(search, 1, Constants.VIDEO_LENGTH.LONG);
         Utility.findAndFilterVideos(finalSearchResultList, search, searchQuery, 500);
         Utility.displaySearchResults(Utility.removeDuplicateVideos(Utility.getVideosMap(finalSearchResultList)));
     }

@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 
 /**
  * Created by nareshm on 11/07/2015.
+ *
  */
 public class Utility {
     private static final Logger logger = LoggerFactory.getLogger(Utility.class.getName());
@@ -41,12 +42,19 @@ public class Utility {
         try {
             YouTube.Search.List searchObject = youtubeSearch.createSearchObject();
             // Format for input
+            //check https://developers.google.com/youtube/v3/docs/search/list#type
             DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
             logger.debug("noOfDaysToSearch Value {} and inputNoOfDasyToSearch value {}", noOfDaysToSearch, inputNoOfDaysToSearch);
             String dateTime = dtf.print(dtf.parseDateTime(getCurrentTimeStamp()).minusDays(noOfDaysToSearch));
             searchObject.setPublishedAfter(new com.google.api.client.util.DateTime(dtf.parseDateTime(dateTime).toDate()));
             inputVideoLength = videoLength;
             inputNoOfDaysToSearch = noOfDaysToSearch;
+            searchObject.setRegionCode("IN");
+            searchObject.setVideoType("movie");
+            searchObject.setRelevanceLanguage("te");
+            searchObject.setVideoDefinition("high");
+            searchObject.setSafeSearch("moderate");
+            searchObject.setOrder("viewCount");
             searchObject.setVideoDuration(videoLength.getLength());//Allowed values: [any, long, medium, short]
 
         } catch (IOException e) {
@@ -116,7 +124,7 @@ public class Utility {
         if (tempSearchSize == finalSearchResultList.size()) {
             searchQueryRetryCount++;
         }
-        if (searchQueryRetryCount >= 10) {
+        if (searchQueryRetryCount >= 50) {
             logger.info("Stop searching search retry count {} reached", searchQueryRetryCount);
             return;
         }
@@ -128,7 +136,7 @@ public class Utility {
             return;
         }
         //increment search days by 10
-        inputNoOfDaysToSearch = inputNoOfDaysToSearch + 10;
+        inputNoOfDaysToSearch = inputNoOfDaysToSearch + 1;
         addSearchFilters(ySearch, inputNoOfDaysToSearch, inputVideoLength);
         logger.info("Size of finalSearchResultList {} ", finalSearchResultList.size());
         findAndFilterVideos(finalSearchResultList, ySearch, searchQuery, videosToDownload);
@@ -204,7 +212,7 @@ public class Utility {
         Map<String, String> sortedMap = sortByValue(videoMap);
         int count = 0;
         for (Map.Entry<String,String> entry : sortedMap.entrySet()) {
-            logger.info("No {} VideoId: {}, Title: {}", ++count, entry.getKey(), entry.getValue());
+            logger.info("No {},Title: {}", ++count, entry.getValue());
         }
     }
     public static <K, V extends Comparable<? super V>> Map<K, V>
