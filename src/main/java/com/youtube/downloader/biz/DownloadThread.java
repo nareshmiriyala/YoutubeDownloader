@@ -91,23 +91,23 @@ public class DownloadThread implements Runnable {
     public void run() {
         VideoInfo i1 = info;
         DownloadInfo i2 = i1.getDownloadInfo();
-        String s = "\n"+title + ":: ";
+        String s = "\n" + title + ":: ";
 
         // notify app or save downloadVideo state
         // you can extractDownloadInfo information from DownloadInfo info;
         switch (i1.getState()) {
             case EXTRACTING:
-                logger.info("Download state {},Downloaded video quality {}", i1.getState(), i1.getVideoQuality());
+                logger.debug("Download state {},Downloaded video quality {}", i1.getState(), i1.getVideoQuality());
                 break;
             case EXTRACTING_DONE:
-                logger.info("Download state {},Downloaded video quality {}", i1.getState(), i1.getVideoQuality());
+                logger.debug("Download state {},Downloaded video quality {}", i1.getState(), i1.getVideoQuality());
                 break;
             case DONE:
                 downloadStatus = 1.00;
-                logger.info(s + i1.getState() + " " + i1.getVideoQuality());
-                logger.info("Successfully Downloaded");
-                logger.info("Download state {},Downloaded video quality {}", i1.getState(), i1.getVideoQuality());
-                updateDownloadRecord(videoId,title);
+                logger.debug(s + i1.getState() + " " + i1.getVideoQuality());
+                logger.debug("Successfully Downloaded");
+                logger.debug("Download state {},Downloaded video quality {}", i1.getState(), i1.getVideoQuality());
+                updateDownloadRecord(videoId, title);
                 break;
             case RETRYING:
                 logger.debug(s + i1.getState() + " " + i1.getDelay());
@@ -132,15 +132,15 @@ public class DownloadThread implements Runnable {
                 if (now - 1000 > last) {
                     last = now;
 
-                    String parts = "";
+                    StringBuilder parts = new StringBuilder();
 
                     List<DownloadInfo.Part> pp = i2.getParts();
                     if (pp != null) {
                         // isMultiPart downloadVideo
                         for (DownloadInfo.Part p : pp) {
                             if (p.getState().equals(DownloadInfo.Part.States.DOWNLOADING)) {
-                                parts += String.format("Part#%d(%.2f) ", p.getNumber(), p.getCount()
-                                        / (float) p.getLength());
+                                parts.append(String.format("Part#%d(%.2f) ", p.getNumber(), p.getCount()
+                                        / (float) p.getLength()));
                             }
                         }
                     }
@@ -154,11 +154,11 @@ public class DownloadThread implements Runnable {
         }
     }
 
-    private void updateDownloadRecord(String videoId,String title) {
+    private void updateDownloadRecord(String videoId, String title) {
         String fileName = null;
         try {
             fileName = ConfigReader.getInstance().getPropertyValue("download.directory") + "\\" + ConfigReader.getInstance().getPropertyValue("config.filename");
-            FileUtils.writeStringToFile(new File(fileName), "\nVideoId:"+videoId+" Title:"+title+"\n",true);
+            FileUtils.writeStringToFile(new File(fileName), "\nVideoId:" + videoId + " Title:" + title + "\n", true);
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
