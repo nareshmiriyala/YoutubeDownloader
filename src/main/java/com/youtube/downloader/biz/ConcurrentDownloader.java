@@ -25,12 +25,9 @@ public class ConcurrentDownloader {
     private static Constants.VIDEO_LENGTH videoLength;
 
     public static void main(String[] args) throws IOException {
-        Search youtubeSearch = new Search();
         getInputData();
-
-        Utility.addSearchFilters(youtubeSearch, noOfDaysToSearch, videoLength);
         List<SearchResult> finalSearchResultList = new ArrayList<>();
-        Utility.findAndFilterVideos(finalSearchResultList, youtubeSearch, searchQuery, noOfVideosToDownload);
+        Utility.findAndFilterVideos(finalSearchResultList,searchQuery, noOfVideosToDownload);
         logger.debug("Final Videos being Downloaded size {}", finalSearchResultList.size());
         Utility.displaySearchResults(finalSearchResultList);
         DOWNLOAD_METHOD download_method = getDownloadMethod();

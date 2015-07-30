@@ -3,15 +3,14 @@ package com.youtube.indianmovies.data;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.youtube.downloader.filters.SearchFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -26,44 +25,17 @@ public class Search {
      * Define a global variable that identifies the name of a file that
      * contains the developer's API key.
      */
-    private static final String PROPERTIES_FILENAME = "youtube.properties";
 
     private static final Logger logger = LoggerFactory.getLogger(Search.class);
 
-    private static long numberOfVideosReturned;
-
     private YouTube.Search.List search;
 
-    public static void setNumberOfVideosReturned(long numberOfVideosReturned) {
-        Search.numberOfVideosReturned = numberOfVideosReturned;
+    private SearchFilter searchFilter;
+
+    public Search(SearchFilter searchFilter) {
+        this.search = createSearchObject();
+        this.searchFilter=searchFilter;
     }
-
-    /*
-         * Prints out all results in the Iterator. For each result, print the
-         * title, video ID, and thumbnail.
-         *
-         * @param iteratorSearchResults Iterator of SearchResults to print
-         *
-         * @param query Search query (String)
-         */
-    private static void prettyPrint(Iterator<SearchResult> iteratorSearchResults, String query) {
-
-        logger.debug("\n=============================================================");
-        logger.debug(
-                "   First " + numberOfVideosReturned + " videos for search on \"" + query + "\".");
-        logger.debug("=============================================================\n");
-
-        if (!iteratorSearchResults.hasNext()) {
-            logger.warn(" There aren't any results for your query.");
-        }
-        while (iteratorSearchResults.hasNext()) {
-            SearchResult singleVideo = iteratorSearchResults.next();
-            ResourceId rId = singleVideo.getId();
-        }
-        logger.debug("\n-------------------------------------------------------------\n");
-
-    }
-
 
     /**
      * Initialize a YouTube object to search for videos on YouTube. Then
@@ -72,43 +44,13 @@ public class Search {
      * @param searchQuery
      */
     public List<SearchResult> find(String searchQuery) throws IOException {
-        // Read the developer key from the properties file.
-        Properties properties = new Properties();
         List<SearchResult> searchResultList = null;
-        InputStream in = null;
         try {
-            in = Search.class.getResourceAsStream("/" + PROPERTIES_FILENAME);
-            properties.load(in);
-
-        } catch (IOException e) {
-            logger.error("There was an error reading " + PROPERTIES_FILENAME + ": " + e.getCause()
-                    + " : " + e.getMessage());
-            System.exit(1);
-        } finally {
-            if (in != null)
-                in.close();
-        }
-
-        try {
-            String apiKey = properties.getProperty("youtube.apikey");
-            search.setKey(apiKey);
             search.setQ(searchQuery);
-
-
-            // Restrict the search results to only include videos. See:
-            // https://developers.google.com/youtube/v3/docs/search/list#type
-            search.setType("video");
-
-            // To increase efficiency, only retrieve the fields that the
-            // application uses.
-            search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
-            search.setMaxResults(numberOfVideosReturned);
+            addSearchFilters();
             // Call the API and print results.
             SearchListResponse searchResponse = search.execute();
             searchResultList = searchResponse.getItems();
-            if (searchResultList != null) {
-                prettyPrint(searchResultList.iterator(), searchQuery);
-            }
         } catch (GoogleJsonResponseException e) {
             logger.error("There was a service error: " + e.getDetails().getCode() + " : "
                     + e.getDetails().getMessage());
@@ -120,10 +62,18 @@ public class Search {
         return searchResultList;
     }
 
-    public YouTube.Search.List createSearchObject() throws IOException {
+    public void addSearchFilters() throws IOException {
+        searchFilter.addCommonFilters(search);
+    }
+
+    public YouTube.Search.List createSearchObject() {
         YouTube youtube = YoutubeBuilder.getInstance().getYouTube();
         // Define the API request for retrieving search results.
-        search = youtube.search().list("id,snippet");
+        try {
+            search = youtube.search().list("id,snippet");
+        } catch (IOException e) {
+            logger.error("Exception during creation of search object {}", e.getMessage());
+        }
         return search;
     }
 }

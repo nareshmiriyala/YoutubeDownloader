@@ -130,7 +130,7 @@
             <version>2.2.1</version>
         </dependency>
         <dependency>
-            <groupId>info.debatty</groupId>
+            <groupId>videoInfo.debatty</groupId>
             <artifactId>java-string-similarity</artifactId>
             <version>RELEASE</version>
         </dependency>

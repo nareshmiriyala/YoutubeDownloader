@@ -78,7 +78,7 @@ public class DownloadJob extends WorkerThread {
 
     @Override
     public void processCommand() {
-        logger.info("Downloading ULR:" + this.urlToDownload + " to path:" + this.fileDownloadPath);
+        logger.info("Downloading ULR:{} to path:{}" ,this.urlToDownload , this.fileDownloadPath);
         startDownload(this.urlToDownload, new File(fileDownloadPath), this.title,this.videoId);
         if (downloadThread.isFailedDownload()) {
             failedDownload = true;
@@ -89,7 +89,7 @@ public class DownloadJob extends WorkerThread {
     public void startDownload(String url, File path, String title,String videoId) {
         try {
             VideoInfo info = new VideoInfo(new URL(url));
-            downloadThread.setInfo(info);
+            downloadThread.setVideoInfo(info);
             downloadThread.setTitle(title);
             downloadThread.setVideoId(videoId);
             AtomicBoolean stop = downloadThread.getStop();
@@ -110,9 +110,4 @@ public class DownloadJob extends WorkerThread {
             throw new RuntimeException(e);
         }
     }
-
-    public boolean isFailedDownload() {
-        return failedDownload;
-    }
-
 }

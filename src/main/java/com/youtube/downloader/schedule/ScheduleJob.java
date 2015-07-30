@@ -2,6 +2,7 @@ package com.youtube.downloader.schedule;
 
 import com.dellnaresh.util.Constants;
 import com.google.api.services.youtube.model.SearchResult;
+import com.youtube.downloader.filters.TeluguHDLongMoviesFilter;
 import com.youtube.downloader.util.Utility;
 import com.youtube.indianmovies.data.Search;
 import org.quartz.Job;
@@ -39,12 +40,10 @@ public class ScheduleJob implements Job {
     }
 
     private void startSearchAndDownload() throws IOException {
-        Search search = new Search();
-        Search.setNumberOfVideosReturned(50);
-        addFilters(search);
+
         List<SearchResult> finalSearchResultList = new ArrayList<>();
         Utility.setSearchQueryRetryCount(0);
-        Utility.findAndFilterVideos(finalSearchResultList, search, SEARCH_QUERY, NUMBER_OF_VIDEOS_TO_DOWNLOAD);
+        Utility.findAndFilterVideos(finalSearchResultList,SEARCH_QUERY, NUMBER_OF_VIDEOS_TO_DOWNLOAD);
         Utility.displaySearchResults(Utility.removeDuplicateVideos(Utility.getVideosMap(finalSearchResultList)));
         for (SearchResult searchResult : finalSearchResultList) {
             if (downloadingMap.containsKey(searchResult.getId().getVideoId()) || downloadingMap.containsValue(searchResult.getSnippet().getTitle())) {
@@ -59,8 +58,4 @@ public class ScheduleJob implements Job {
 
     }
 
-    private void addFilters(Search searchObject) throws IOException {
-        logger.debug("Value of videoLengthFilter {}", videoLengthFilter);
-        Utility.addSearchFilters(searchObject, 1, videoLengthFilter);
-    }
 }

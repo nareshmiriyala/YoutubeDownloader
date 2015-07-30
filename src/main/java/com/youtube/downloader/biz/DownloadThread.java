@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by nareshm on 7/07/2015.
  */
 public class DownloadThread implements Runnable {
-    private VideoInfo info;
+    private VideoInfo videoInfo;
     private long last;
     private Logger logger = LoggerFactory.getLogger(DownloadThread.class);
     private AtomicBoolean stop = new AtomicBoolean(false);
@@ -34,15 +34,6 @@ public class DownloadThread implements Runnable {
         this.videoId = videoId;
     }
 
-    public DownloadThread() {
-
-    }
-
-    public DownloadThread(VideoInfo info, String title) {
-        this.info = info;
-        this.title = title;
-    }
-
     public boolean isFailedDownload() {
         return isFailedDownload;
     }
@@ -55,12 +46,12 @@ public class DownloadThread implements Runnable {
         this.downloadStatus = downloadStatus;
     }
 
-    public VideoInfo getInfo() {
-        return info;
+    public VideoInfo getVideoInfo() {
+        return videoInfo;
     }
 
-    public void setInfo(VideoInfo info) {
-        this.info = info;
+    public void setVideoInfo(VideoInfo videoInfo) {
+        this.videoInfo = videoInfo;
     }
 
     public AtomicInteger getRetryCount() {
@@ -89,12 +80,12 @@ public class DownloadThread implements Runnable {
 
     @Override
     public void run() {
-        VideoInfo i1 = info;
+        VideoInfo i1 = videoInfo;
         DownloadInfo i2 = i1.getDownloadInfo();
         String s = "\n" + title + ":: ";
 
         // notify app or save downloadVideo state
-        // you can extractDownloadInfo information from DownloadInfo info;
+        // you can extractDownloadInfo information from DownloadInfo videoInfo;
         switch (i1.getState()) {
             case EXTRACTING:
                 logger.debug("Download state {},Downloaded video quality {}", i1.getState(), i1.getVideoQuality());
@@ -167,7 +158,7 @@ public class DownloadThread implements Runnable {
     @Override
     public String toString() {
         return "DownloadThread{" +
-                "info=" + info.toString() +
+                "videoInfo=" + videoInfo.toString() +
                 ", stop=" + stop +
                 ", retryCount=" + retryCount +
                 ", title='" + title + '\'' +
