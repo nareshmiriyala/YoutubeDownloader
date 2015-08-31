@@ -36,12 +36,11 @@ public class Utility {
 
 
     public static String getInputString() throws IOException {
-        String inputQuery;
-        BufferedReader bReader = new BufferedReader(new InputStreamReader(System.in));
-        inputQuery = bReader.readLine();
-        if (bReader != null) {
-            bReader.close();
-        }
+        String inputQuery=null;
+        BufferedReader bReader=null;
+             bReader = new BufferedReader(new InputStreamReader(System.in));
+            if(bReader!=null)
+            inputQuery = bReader.readLine();
         return inputQuery;
     }
 
@@ -102,7 +101,7 @@ public class Utility {
         }
         //increment search days by 1
         noOfDaysToSearch = noOfDaysToSearch + 1;
-        logger.info("Size of searchResultList {} ", searchResultList.size());
+        logger.debug("Size of searchResultList {} ", searchResultList.size());
         findAndFilterVideos(searchResultList, searchQuery, videosToDownload);
     }
 
@@ -201,11 +200,15 @@ public class Utility {
         }
     }
 
-    private static boolean isFileExistsInFolder(SearchResult searchResult) {
+    private static boolean isFileExistsInFolder(SearchResult searchResult) throws IOException {
         File folder = new File(getPropertyValue("download.directory"));
+        if(!folder.exists()){
+            folder.createNewFile();
+        }
         String videoTitle = searchResult.getSnippet().getTitle();
-        Damerau d = new Damerau();
         File[] listOfFiles = folder.listFiles();
+        if(listOfFiles!=null && listOfFiles.length!=0){
+
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
                 String name = listOfFiles[i].getName();
@@ -215,6 +218,7 @@ public class Utility {
                 }
             }
 
+        }
         }
         return false;
     }
