@@ -4,6 +4,7 @@ import com.dellnaresh.util.Constants;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.SearchResultSnippet;
 import com.youtube.indianmovies.data.Search;
+import com.youtube.workerpool.WorkerPool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.*;
 
@@ -89,6 +91,11 @@ public class UtilityTest {
 
     @Test
     public void testShutDownPool() throws Exception {
+
+    }
+    @Test
+    public void testDownloadUsingVideoId() throws Exception{
+        Utility.downloadVideo("BZP1rYjoBgI");
 
     }
 }

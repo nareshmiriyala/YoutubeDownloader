@@ -1,5 +1,6 @@
 package com.youtube.workerpool;
 
+import com.youtube.downloader.biz.DownloadJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,10 +56,23 @@ public class WorkerPool {
     public static void deployJob(AbstractJob job) {
         logger.debug("Deployed Job in the Pool:", job);
         executorPool.submit(job);
+        DownloadJob downloadJob=(DownloadJob)job;
+        try {
+            downloadJob.getCountDownLatch().await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
 
     }
     public static void removeJob(AbstractJob job){
         logger.debug("Removing job {}",job.toString());
         executorPool.remove(job);
+    }
+    public static boolean isAllTasksCompleted(){
+        if(executorPool.getActiveCount()==0){
+            return true;
+        }
+        return false;
     }
 }

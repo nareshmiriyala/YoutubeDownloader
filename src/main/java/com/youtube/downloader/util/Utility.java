@@ -77,12 +77,7 @@ public class Utility {
     }
 
     public static void findAndFilterVideos(List<SearchResult> searchResultList, String searchQuery, int videosToDownload) throws IOException {
-        TeluguHDLongMoviesFilter teluguHDLongMoviesFilter = new TeluguHDLongMoviesFilter();
-        teluguHDLongMoviesFilter.setNoOfDaysToSearch(noOfDaysToSearch);
-        Search search = new Search(teluguHDLongMoviesFilter);
-        logger.debug("Called findAndFilterVideos  searchQuery {} and no of videos to download {}", searchQuery, videosToDownload);
-
-        List<SearchResult> searchResults = search.find(searchQuery);
+        List<SearchResult> searchResults = getSearchResults(searchQuery, videosToDownload);
         logger.debug("Search result size {} and noofDaysToSearch is {}", searchResults.size(), noOfDaysToSearch);
         searchResults.stream().filter(searchResult -> !isFileAlreadyDownloaded(searchResult) && !findIfAddedToList(searchResult.getId().getVideoId(), searchResultList)).forEach(searchResultList::add);
         if (tempSearchSize == searchResultList.size()) {
@@ -103,6 +98,15 @@ public class Utility {
         noOfDaysToSearch = noOfDaysToSearch + 1;
         logger.debug("Size of searchResultList {} ", searchResultList.size());
         findAndFilterVideos(searchResultList, searchQuery, videosToDownload);
+    }
+
+    private static List<SearchResult> getSearchResults(String searchQuery, int videosToDownload) throws IOException {
+        TeluguHDLongMoviesFilter teluguHDLongMoviesFilter = new TeluguHDLongMoviesFilter();
+        teluguHDLongMoviesFilter.setNoOfDaysToSearch(noOfDaysToSearch);
+        Search search = new Search(teluguHDLongMoviesFilter);
+        logger.debug("Called findAndFilterVideos  searchQuery {} and no of videos to download {}", searchQuery, videosToDownload);
+
+        return search.find(searchQuery);
     }
 
     private static boolean findIfAddedToList(String videoId, List<SearchResult> finalSearchResultList) {
@@ -146,10 +150,19 @@ public class Utility {
     }
 
     public static void downloadVideo(SearchResult searchResult) {
-        WorkerPool.getInstance();
         String videoId = searchResult.getId().getVideoId();
+        downloadVideo(searchResult, videoId);
+    }
+    public static void downloadVideo(String videoId){
+        downloadVideo(null,videoId);
+    }
+    private static void downloadVideo(SearchResult searchResult, String videoId) {
+        WorkerPool.getInstance();
         String url = createURL(videoId);
-        String name = searchResult.getSnippet().getTitle();
+        String name ="Video_Sample";
+        if(searchResult!=null) {
+            name = searchResult.getSnippet().getTitle();
+        }
         //don't download file if its in the directory
         final DownloadJob downloadJob = new DownloadJob("Download Job:" + url);
         downloadJob.setFileDownloadPath(path);
@@ -159,6 +172,7 @@ public class Utility {
         logger.debug("Download progress {}", downloadJob.getDownloadProgress());
         WorkerPool.deployJob(downloadJob);
     }
+
 
     public static void displaySearchResults(List<SearchResult> finalSearchResultList) {
         Collections.sort(finalSearchResultList, new Comparator<SearchResult>() {

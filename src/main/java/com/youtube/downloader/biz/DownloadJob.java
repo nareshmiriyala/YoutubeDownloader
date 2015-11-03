@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -23,6 +24,7 @@ public class DownloadJob extends WorkerThread {
     private double downloadProgress;
     private DownloadThread downloadThread;
     private boolean failedDownload = false;
+    private CountDownLatch countDownLatch=new CountDownLatch(1);
     private String videoId;
 
     public DownloadJob(String s) {
@@ -104,10 +106,15 @@ public class DownloadJob extends WorkerThread {
             logger.info("Download URL: {} ", info.getDownloadInfo().getSource());
 
             v.downloadVideo(user, stop, downloadThread);
+            countDownLatch.countDown();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public CountDownLatch getCountDownLatch() {
+        return countDownLatch;
     }
 }
